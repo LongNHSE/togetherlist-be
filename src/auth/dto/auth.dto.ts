@@ -27,12 +27,14 @@ export class AuthDTO {
   @IsString()
   password: string;
 
+  @IsNotEmpty()
+  @IsString()
+  gender: string;
+
   avatar: string;
 
   status: string;
 
-  @IsNotEmpty()
-  @IsString()
   phone: string;
 
   role: string;

@@ -25,7 +25,7 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop({ enum: ['admin', 'user', 'staff', 'host'], default: 'user' })
+  @Prop({ enum: ['admin', 'user', 'staff'], default: 'user' })
   role: string;
 
   @Prop({ default: 'active', enum: ['active', 'inactive'] })
@@ -34,8 +34,11 @@ export class User {
   @Prop()
   avatar: string;
 
-  @Prop({ unique: true })
+  @Prop()
   phone: string;
+
+  @Prop()
+  gender: string;
 
   @Prop()
   refreshToken: string;

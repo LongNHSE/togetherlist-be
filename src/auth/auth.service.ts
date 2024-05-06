@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { MongoServerError } from 'mongodb';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { stat } from 'fs';
 @Injectable({})
 export class AuthService {
   constructor(
@@ -50,6 +51,7 @@ export class AuthService {
       const refreshToken = await this.updateRefreshToken(newUser._id);
       newUser.password = '';
       newUser.refreshToken = '';
+      console.log(newUser);
       return {
         statusCode: 201,
         message: 'Created successfully',
@@ -60,11 +62,12 @@ export class AuthService {
     } catch (e) {
       if (e instanceof MongoServerError) {
         if (e.code === 11000) {
+          console.log(e);
           return e;
         }
         return e;
       } else {
-        return { message: 'Something went wrong' };
+        return { message: 'Something went wrong', statusCode: 500 };
       }
     }
   }

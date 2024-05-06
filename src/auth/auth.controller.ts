@@ -34,6 +34,7 @@ export class AuthController {
   }
   @Post('signup')
   register(@Body() body: AuthDTO) {
+    console.log(body);
     return this.authService.register(body);
   }
   @Get('logout')
@@ -81,7 +82,7 @@ export class AuthController {
         HttpStatus.CONFLICT,
       );
     }
-
+    console.log(createDTO);
     const isSended = await this.mailService.sendUserOTP(createDTO.mail, otp);
     const isCreated = await this.otpService.create(createDTO);
     if (isSended && isCreated) {
@@ -98,14 +99,16 @@ export class AuthController {
   }
 
   @Post('verifyOTP')
-  async verifyOTP(@Body() body: { mail: string; OTP: string }) {
-    const otp = await this.otpService.findOneByMailAndOTP(body.mail, body.OTP);
+  async verifyOTP(@Body() body: { email: string; OTP: string }) {
+    console.log(body);
+    const otp = await this.otpService.findOneByMailAndOTP(body.email, body.OTP);
+    console.log(otp);
     if (otp) {
       if (otp.OTP === body.OTP) {
         return {
           statusCode: 200,
           message: 'OTP verified successfully',
-          mail: body.mail,
+          email: body.email,
         };
       } else {
         throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);

@@ -2,12 +2,12 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthDTO, LoginDTO } from './dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/user/schema/user.schema';
+import { User, UserDocument } from '../user/schema/user.schema';
 import { Model } from 'mongoose';
 import { MongoServerError } from 'mongodb';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { stat } from 'fs';
+
 @Injectable({})
 export class AuthService {
   constructor(

@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 import { MongoServerError } from 'mongodb';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
+import { Response } from 'express';
 @Injectable({})
 export class AuthService {
   constructor(
@@ -16,7 +16,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async login(LoginDTO: LoginDTO) {
+  async login(LoginDTO: LoginDTO, response: Response) {
     const user: AuthDTO | null = await this.userModel.findOne({
       username: LoginDTO.username,
     });
@@ -31,6 +31,18 @@ export class AuthService {
     const refreshToken = await this.updateRefreshToken(user._id);
     user.password = '';
     user.refreshToken = '';
+    response.cookie('Authentication', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 900000,
+    });
+    response.cookie('Refresh', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 604800000,
+    });
     return {
       statusCode: 200,
       message: 'Login successfully',

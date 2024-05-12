@@ -10,6 +10,7 @@ async function bootstrap() {
 
   // set up middlewares ----------------------------
   app.use(morgan('dev'));
+  app.use(cookieParser());
   // -----------------------------------------------
 
   // set up swagger --------------------------------
@@ -31,8 +32,6 @@ async function bootstrap() {
   // -----------------------------------------------
 
   await app.listen(8000, '0.0.0.0');
-  await app.listen(8000);
-  app.use(cookieParser());
 }
 
 bootstrap();

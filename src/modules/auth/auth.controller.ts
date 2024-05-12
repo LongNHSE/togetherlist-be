@@ -14,10 +14,10 @@ import { AuthService } from './auth.service';
 import { AuthDTO, LoginDTO } from './dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './decorator';
-import { MailService } from 'src/mail/mail.service';
-import { CreateOtpDto } from 'src/otp/dto/create-otp.dto';
-import { UserService } from 'src/user/user.service';
-import { OtpService } from 'src/otp/otp.service';
+import { MailService } from '../mail/mail.service';
+import { CreateOtpDto } from '../otp/dto/create-otp.dto';
+import { UserService } from '../user/user.service';
+import { OtpService } from '../otp/otp.service';
 import { Response } from 'express';
 
 @Controller('auth')

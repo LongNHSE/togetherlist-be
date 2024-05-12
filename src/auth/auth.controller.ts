@@ -8,6 +8,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDTO, LoginDTO } from './dto';
@@ -17,6 +18,7 @@ import { MailService } from 'src/mail/mail.service';
 import { CreateOtpDto } from 'src/otp/dto/create-otp.dto';
 import { UserService } from 'src/user/user.service';
 import { OtpService } from 'src/otp/otp.service';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -27,14 +29,16 @@ export class AuthController {
     private mailService: MailService,
   ) {}
   @Post('signin')
-  signin(@Body() body: LoginDTO) {
-    console.log(body);
-    console.log('signin');
-    return this.authService.login(body);
+  async signin(
+    @Body() body: LoginDTO,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(body, response);
   }
   @Post('signup')
   register(@Body() body: AuthDTO) {
     console.log(body);
+
     return this.authService.register(body);
   }
   @Get('logout')
@@ -114,7 +118,7 @@ export class AuthController {
         throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
       }
     } else {
-      throw new HttpException('OTP not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Invalid OTP', HttpStatus.NOT_FOUND);
     }
   }
 }

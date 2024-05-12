@@ -7,9 +7,6 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class OtpService {
-  findOneByMailAndOTP(mail: string, OTP: string) {
-    return this.OtpModel.findOne({ mail: mail }, { OTP: OTP });
-  }
   constructor(@InjectModel(OTP.name) private OtpModel: Model<OTPDocument>) {}
   findOneByMail(email: string) {
     return this.OtpModel.findOne({ mail: email });
@@ -17,7 +14,11 @@ export class OtpService {
   create(createOtpDto: CreateOtpDto) {
     return this.OtpModel.create(createOtpDto);
   }
-
+  async findOneByMailAndOTP(mail: string, OTP: string) {
+    const result = await this.OtpModel.findOne({ mail: mail, OTP: OTP });
+    console.log(result);
+    return result;
+  }
   findAll() {
     return `This action returns all otp`;
   }

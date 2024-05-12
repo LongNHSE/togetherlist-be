@@ -12,8 +12,8 @@ import {
 import { OtpService } from './otp.service';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { UpdateOtpDto } from './dto/update-otp.dto';
-import { UserService } from 'src/user/user.service';
-import { MailService } from 'src/mail/mail.service';
+import { UserService } from '../user/user.service';
+import { MailService } from '../mail/mail.service';
 
 @Controller('otp')
 export class OtpController {

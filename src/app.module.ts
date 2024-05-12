@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailModule } from './mail/mail.module';
-import { OtpModule } from './otp/otp.module';
+import { MailModule } from './modules/mail/mail.module';
+import { OtpModule } from './modules/otp/otp.module';
+import { ImageModule } from './modules/image/image.module';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -17,6 +17,8 @@ import { OtpModule } from './otp/otp.module';
     MailModule,
     UserModule,
     OtpModule,
+    ImageModule,
+    FirebaseModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -25,7 +27,6 @@ import { OtpModule } from './otp/otp.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}

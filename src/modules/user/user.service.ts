@@ -3,10 +3,19 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 
 @Injectable()
 export class UserService {
+  updateImage(id: string, urlResult: string) {
+    return this.userModel.findByIdAndUpdate(
+      id,
+      { avatar: urlResult },
+      {
+        new: true,
+      },
+    );
+  }
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   create(createUserDto: CreateUserDto) {
@@ -25,8 +34,10 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
   }
 
   remove(id: number) {

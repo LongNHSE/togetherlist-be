@@ -25,13 +25,12 @@ async function bootstrap() {
     swaggerOptions: {
       defaultModelsExpandDepth: -1,
       docExpansion: 'none',
-    }
+    },
   });
   // http://localhost:8000/swagger#/
   // -----------------------------------------------
 
   await app.listen(8000, '0.0.0.0');
-  await app.listen(8000);
   app.use(cookieParser());
 }
 

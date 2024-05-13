@@ -8,6 +8,7 @@ import { MongoServerError } from 'mongodb';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import { apiFailed } from 'src/common/api-response';
 @Injectable({})
 export class AuthService {
   constructor(
@@ -21,11 +22,11 @@ export class AuthService {
       username: LoginDTO.username,
     });
     if (!user) {
-      throw new ForbiddenException('User not found');
+      return apiFailed(404, {}, 'User not found');
     }
     const match = await bcrypt.compare(LoginDTO.password, user.password);
     if (!match) {
-      throw new ForbiddenException('Invalid password');
+      return apiFailed(404, {}, 'Password is incorrect');
     }
     const token = await this.signToken(user._id);
     const refreshToken = await this.updateRefreshToken(user._id);

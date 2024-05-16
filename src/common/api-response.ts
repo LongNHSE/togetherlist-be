@@ -5,13 +5,13 @@ export const apiSuccess = (
   data: any = null,
   message: string,
 ): ApiResponse => {
-  return { statusCode, data, message }
-}
+  return { statusCode, data, message };
+};
 
 export const apiFailed = (
   statusCode: number = 500,
   data: any = null,
-  message: string = 'Internal server error'
+  message: string = 'Internal server error',
 ): ApiResponse => {
-  return { statusCode, data, message }
-}
+  return { statusCode, data, message };
+};

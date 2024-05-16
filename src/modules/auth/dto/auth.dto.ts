@@ -1,6 +1,8 @@
+import { Exclude } from 'class-transformer';
 import { IsNotEmpty, IsString, IsEmail, IsDateString } from 'class-validator';
 
 export class AuthDTO {
+  @Exclude()
   _id: string;
 
   @IsNotEmpty()
@@ -25,6 +27,7 @@ export class AuthDTO {
 
   @IsNotEmpty()
   @IsString()
+  @Exclude()
   password: string;
 
   @IsNotEmpty()
@@ -39,5 +42,6 @@ export class AuthDTO {
 
   role: string;
 
+  @Exclude()
   refreshToken: string;
 }

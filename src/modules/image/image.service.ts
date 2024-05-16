@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { FirebaseService } from "../firebase/firebase.service";
+import { Injectable } from '@nestjs/common';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class ImageService {
-  constructor(private readonly firebaseService: FirebaseService) { }
+  constructor(private readonly firebaseService: FirebaseService) {}
 
   async uploadImage(file: Express.Multer.File): Promise<string> {
     const storage = this.firebaseService.getFirestoreInstance();
@@ -14,17 +14,18 @@ export class ImageService {
 
     const stream = fileUpload.createWriteStream({
       metadata: {
-        contentType: file.mimetype
-      }
+        contentType: file.mimetype,
+      },
     });
 
     return new Promise((resolve, reject) => {
-      stream.on('erroe', error => {
+      stream.on('erroe', (error) => {
         reject(error);
       });
 
       stream.on('finish', () => {
         const imageUrl = `https://storage.googleapis.com.${bucket.name}/${fileName}`;
+
         resolve(imageUrl);
       });
 

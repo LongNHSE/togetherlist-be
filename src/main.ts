@@ -26,7 +26,7 @@ async function bootstrap() {
     swaggerOptions: {
       defaultModelsExpandDepth: -1,
       docExpansion: 'none',
-    }
+    },
   });
   // http://localhost:8000/swagger#/
   // -----------------------------------------------

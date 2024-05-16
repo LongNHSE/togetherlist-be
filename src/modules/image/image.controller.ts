@@ -45,6 +45,7 @@ export class ImageController {
     @Param('imageName') imageName: string,
     @Res() res: any,
   ): Promise<any> {
+    console.log('Hello');
     try {
       const bucket = this.firebaseService.getFirestoreInstance().bucket();
       const file = bucket.file(imageName);

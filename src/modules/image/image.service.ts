@@ -25,6 +25,7 @@ export class ImageService {
 
       stream.on('finish', () => {
         const imageUrl = `https://storage.googleapis.com.${bucket.name}/${fileName}`;
+
         resolve(imageUrl);
       });
 

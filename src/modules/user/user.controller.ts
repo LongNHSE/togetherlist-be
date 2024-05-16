@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ImageService } from '../image/image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
+import { getNameImageFromUrl } from 'src/utils';
 
 @Controller('users')
 export class UserController {
@@ -58,7 +59,8 @@ export class UserController {
   ) {
     try {
       const urlResult = await this.imageService.uploadImage(file);
-      const updatedUser = await this.userService.updateImage(id, urlResult);
+      const imageName = getNameImageFromUrl(urlResult);
+      const updatedUser = await this.userService.updateImage(id, imageName);
       return apiSuccess(200, { updatedUser }, 'Add user avatar successfully');
     } catch (error) {
       return apiFailed(error.statusCode, null, error.message);

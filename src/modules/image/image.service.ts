@@ -19,7 +19,7 @@ export class ImageService {
     });
 
     return new Promise((resolve, reject) => {
-      stream.on('erroe', error => {
+      stream.on('error', error => {
         reject(error);
       });
 

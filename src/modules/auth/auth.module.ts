@@ -10,6 +10,7 @@ import { MailModule } from '../mail/mail.module';
 import { OTP, otpSchema } from '../otp/schema/otp.schema';
 import { UserModule } from '../user/user.module';
 import { OtpModule } from '../otp/otp.module';
+import { BlackListTokenModule } from '../black-list-token/black-list-token.module';
 
 @Module({
   controllers: [AuthController],
@@ -18,6 +19,7 @@ import { OtpModule } from '../otp/otp.module';
     ConfigModule,
     MailModule,
     UserModule,
+    BlackListTokenModule,
     OtpModule,
     JwtModule.register({}),
     MongooseModule.forFeature([{ name: User.name, schema: userSchema }]),

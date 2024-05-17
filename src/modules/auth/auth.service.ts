@@ -9,12 +9,14 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { apiFailed } from 'src/common/api-response';
+import { BlackListTokenService } from '../black-list-token/black-list-token.service';
 @Injectable({})
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwt: JwtService,
     private config: ConfigService,
+    private blackListTokenService: BlackListTokenService,
   ) {}
 
   async login(LoginDTO: LoginDTO, response: Response) {
@@ -85,10 +87,12 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string) {
+  async logout(userId: string, token: string): Promise<boolean> {
     try {
+      console.log(token);
       await this.userModel.findByIdAndUpdate(userId, { refreshToken: null });
-      return { statusCode: 204, message: 'Logout successfully' };
+      await this.blackListTokenService.createBlackListToken(token);
+      return true;
     } catch (error) {
       console.error(error);
       throw new Error('Logout failed');

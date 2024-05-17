@@ -9,8 +9,7 @@ import {
   Req,
   UseGuards,
   Res,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  Headers,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDTO, LoginDTO } from './dto';
@@ -23,7 +22,7 @@ import { OtpService } from '../otp/otp.service';
 import { Response } from 'express';
 import MongooseClassSerializerInterceptor from 'src/interceptors/mongoose-class-serializer.interceptor';
 import { User } from '../user/schema/user.schema';
-
+import { apiSuccess, apiFailed } from 'src/common/api-response';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -33,7 +32,6 @@ export class AuthController {
     private mailService: MailService,
   ) {}
   @Post('signin')
-  @UseInterceptors(MongooseClassSerializerInterceptor(User))
   async signin(
     @Body() body: LoginDTO,
     @Res({ passthrough: true }) response: Response,
@@ -48,10 +46,25 @@ export class AuthController {
   }
   @Get('logout')
   @UseGuards(AuthGuard('jwt'))
-  async logout(@GetUser() user: any) {
-    console.log(user);
+  async logout(
+    @GetUser() user: any,
+    @Req() request: Request,
+    @Headers('authorization') jwt: string,
+  ) {
     if (user.userId) {
-      return this.authService.logout(user.userId);
+      console.log(jwt);
+      if (!jwt) {
+        return apiFailed(400, {}, 'Logout failed');
+      }
+      const result = await this.authService.logout(
+        user.userId,
+        jwt.replace('Bearer ', ''),
+      );
+      if (result) {
+        return apiSuccess(200, {}, 'Logout successfully');
+      } else {
+        return apiFailed(400, {}, 'Logout failed');
+      }
     } else {
       throw new BadRequestException('Invalid user ID');
     }

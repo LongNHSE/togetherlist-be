@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +18,7 @@ import { ImageService } from '../image/image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { getNameImageFromUrl } from 'src/utils';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UserController {
@@ -41,6 +43,7 @@ export class UserController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'))
   async update(
     @Param('id') id: string,
     @Body(new ValidationPipe({ whitelist: true, skipMissingProperties: true }))
@@ -52,6 +55,7 @@ export class UserController {
   }
 
   @Post(':id/avatar')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))
   async postAvatar(
     @Param('id') id: string,

@@ -10,6 +10,11 @@ import { FirebaseModule } from './modules/firebase/firebase.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { SubscriptionPlanModule } from './modules/subscription-plan/subscription-plan.module';
+import { WorkspaceModule } from './modules/workspace/workspace.module';
+import { TaskModule } from './modules/task/task.module';
+import { BoardModule } from './modules/board/board.module';
+import { SectionModule } from './modules/section/section.module';
+import { MemberModule } from './modules/member/member.module';
 
 @Module({
   imports: [
@@ -32,6 +37,11 @@ import { SubscriptionPlanModule } from './modules/subscription-plan/subscription
       }),
       inject: [ConfigService],
     }),
+    WorkspaceModule,
+    TaskModule,
+    BoardModule,
+    SectionModule,
+    MemberModule,
   ],
   providers: [],
 })

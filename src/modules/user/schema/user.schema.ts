@@ -35,7 +35,7 @@ export class User {
   @Prop()
   avatar: string;
 
-  @Prop()
+  @Prop({ unique: true, sparse: true })
   phone: string;
 
   @Prop()

@@ -4,6 +4,7 @@ import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, userSchema } from './schema/user.schema';
 import { ImageModule } from '../image/image.module';
+import { IsUserExistsConstraint } from './validator/is-user-exists.validator';
 
 @Module({
   controllers: [UserController],
@@ -11,7 +12,7 @@ import { ImageModule } from '../image/image.module';
     ImageModule,
     MongooseModule.forFeature([{ name: User.name, schema: userSchema }]),
   ],
-  providers: [UserService],
+  providers: [UserService, IsUserExistsConstraint],
   exports: [UserService],
 })
 export class UserModule {}

@@ -51,22 +51,26 @@ export class AuthController {
     @Req() request: Request,
     @Headers('authorization') jwt: string,
   ) {
-    if (user.userId) {
-      console.log(jwt);
-      if (!jwt) {
-        return apiFailed(400, {}, 'Logout failed');
-      }
-      const result = await this.authService.logout(
-        user.userId,
-        jwt.replace('Bearer ', ''),
-      );
-      if (result) {
-        return apiSuccess(200, {}, 'Logout successfully');
+    try {
+      if (user.userId) {
+        console.log(jwt);
+        if (!jwt) {
+          return apiFailed(400, {}, 'Logout failed');
+        }
+        const result = await this.authService.logout(
+          user.userId,
+          jwt.replace('Bearer ', ''),
+        );
+        if (result) {
+          return apiSuccess(200, {}, 'Logout successfully');
+        } else {
+          return apiFailed(400, {}, 'Logout failed');
+        }
       } else {
-        return apiFailed(400, {}, 'Logout failed');
+        throw new BadRequestException('Invalid user ID');
       }
-    } else {
-      throw new BadRequestException('Invalid user ID');
+    } catch (error) {
+      console.log(error);
     }
   }
 

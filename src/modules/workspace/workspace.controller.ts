@@ -89,8 +89,8 @@ export class WorkspaceController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.workspaceService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.workspaceService.findOne(id);
   }
 
   @Patch(':id')

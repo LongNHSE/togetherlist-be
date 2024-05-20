@@ -14,5 +14,6 @@ import { MemberModule } from '../member/member.module';
     ]),
   ],
   providers: [WorkspaceService],
+  exports: [WorkspaceService],
 })
 export class WorkspaceModule {}

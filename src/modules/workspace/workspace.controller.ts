@@ -18,7 +18,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/common/decorator/user.decorator';
 import { MemberService } from '../member/member.service';
 import { CreateMemberDto } from '../member/dto/create-member.dto';
-import { User } from '../user/schema/user.schema';
 
 @Controller('workspaces')
 export class WorkspaceController {
@@ -59,7 +58,7 @@ export class WorkspaceController {
       transform: true,
     }),
   )
-  async addMember(
+  async inviteMember(
     @Param('id') id: string,
     @Body() members: CreateMemberDto,
     @GetUser() user: any,
@@ -75,13 +74,7 @@ export class WorkspaceController {
       }
       const result = await this.memberService.create(id, members.members);
       if (result) {
-        const memberId = result.map((member) => member._id);
-        const workspace = await this.workspaceService.addMember(id, memberId);
-        if (workspace) {
-          return apiSuccess(200, workspace, 'Add member successfully');
-        } else {
-          return apiFailed(400, 'Add member failed');
-        }
+        return apiSuccess(200, result, 'Add member successfully');
       } else {
         return apiFailed(400, 'Add member failed');
       }
@@ -127,9 +120,7 @@ export class WorkspaceController {
   @UseGuards(AuthGuard('jwt'))
   async findSharedWorkSpace(@GetUser() user: any) {
     try {
-      const result = await this.workspaceService.findSharedWorkSpaces(
-        user.userId,
-      );
+      const result = await this.memberService.findSharedWorkspace(user.userId);
       if (result) {
         return apiSuccess(200, result, 'Get workspaces successfully');
       } else {

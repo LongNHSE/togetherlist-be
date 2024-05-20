@@ -7,6 +7,10 @@ import mongoose, { Model, Types } from 'mongoose';
 
 @Injectable()
 export class WorkspaceService {
+  constructor(
+    @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
+  ) {}
+
   isOwner(id: string, userId: any) {
     return this.workSpaceModel.findOne({ owner: userId, _id: id });
   }
@@ -105,9 +109,6 @@ export class WorkspaceService {
       },
     ]);
   }
-  constructor(
-    @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
-  ) {}
 
   create(createWorkspaceDto: CreateWorkspaceDto) {
     return this.workSpaceModel.create(createWorkspaceDto);
@@ -179,11 +180,10 @@ export class WorkspaceService {
   }
 
   //Add member to workspaces
-  addMember(id: string, memberId: string[]) {
-    const objectIds = memberId.map((id) => new Types.ObjectId(id));
+  addMember(id: string, memberId: string) {
     return this.workSpaceModel.findByIdAndUpdate(
       { _id: id },
-      { $push: { members: { $each: objectIds } } },
+      { $push: { members: new mongoose.Types.ObjectId(memberId) } },
       { new: true },
     );
   }

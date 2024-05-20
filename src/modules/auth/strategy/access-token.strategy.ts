@@ -20,6 +20,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(req: express.Request, payload: any) {
+    console.log(req.headers);
     const token =
       ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken()])(
         req,

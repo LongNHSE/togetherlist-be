@@ -41,7 +41,6 @@ export class AuthController {
   @Post('signup')
   register(@Body() body: AuthDTO) {
     console.log(body);
-
     return this.authService.register(body);
   }
   @Get('logout')

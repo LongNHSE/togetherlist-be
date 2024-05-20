@@ -16,10 +16,9 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { apiSuccess, apiFailed } from 'src/common/api-response';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/common/decorator/user.decorator';
-import { MemberDto } from './dto/member.dto';
 import { MemberService } from '../member/member.service';
 import { CreateMemberDto } from '../member/dto/create-member.dto';
-import e from 'express';
+import { User } from '../user/schema/user.schema';
 
 @Controller('workspaces')
 export class WorkspaceController {
@@ -60,11 +59,19 @@ export class WorkspaceController {
       transform: true,
     }),
   )
-  async addMember(@Param('id') id: string, @Body() members: CreateMemberDto) {
+  async addMember(
+    @Param('id') id: string,
+    @Body() members: CreateMemberDto,
+    @GetUser() user: any,
+  ) {
     try {
       const isExist = await this.workspaceService.isExist(id);
       if (!isExist) {
         return apiFailed(400, 'Workspace not found');
+      }
+      const isOwner = await this.workspaceService.isOwner(id, user.userId);
+      if (!isOwner) {
+        return apiFailed(400, `You don't have permission`);
       }
       const result = await this.memberService.create(id, members.members);
       if (result) {
@@ -84,8 +91,54 @@ export class WorkspaceController {
   }
 
   @Get()
-  findAll() {
-    return this.workspaceService.findAll();
+  async findAll() {
+    try {
+      const result = await this.workspaceService.findAll();
+      if (result) {
+        return apiSuccess(200, result, 'Get all workspaces successfully');
+      } else {
+        return apiFailed(400, 'Get all workspace failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, 'Get all workspace failed');
+    }
+  }
+
+  //Get all personal workspace based on who logged in
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  async findMyWorkSpace(@GetUser() user: any) {
+    try {
+      const result = await this.workspaceService.findMyWorkSpaces(user.userId);
+      if (result) {
+        return apiSuccess(200, result, 'Get workspaces successfully');
+      } else {
+        return apiFailed(400, 'Get workspace failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, 'Get workspace failed');
+    }
+  }
+
+  //Get all shared workspace based on who logged in
+  @Get('me/share')
+  @UseGuards(AuthGuard('jwt'))
+  async findSharedWorkSpace(@GetUser() user: any) {
+    try {
+      const result = await this.workspaceService.findSharedWorkSpaces(
+        user.userId,
+      );
+      if (result) {
+        return apiSuccess(200, result, 'Get workspaces successfully');
+      } else {
+        return apiFailed(400, 'Get workspace failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, 'Get workspace failed');
+    }
   }
 
   @Get(':id')

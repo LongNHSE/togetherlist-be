@@ -35,4 +35,6 @@ export class MemberService {
   remove(id: number) {
     return `This action removes a #${id} member`;
   }
+
+  findSharedWorkspace(userId: string) {}
 }

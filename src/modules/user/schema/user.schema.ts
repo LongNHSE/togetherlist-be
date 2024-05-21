@@ -35,7 +35,7 @@ export class User {
   @Prop()
   avatar: string;
 
-  @Prop()
+  @Prop({ unique: true, sparse: true })
   phone: string;
 
   @Prop()
@@ -43,6 +43,8 @@ export class User {
 
   @Prop()
   refreshToken: string;
+
+  _id: string;
 }
 
 export const userSchema = SchemaFactory.createForClass(User);

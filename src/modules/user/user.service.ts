@@ -4,6 +4,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schema/user.schema';
 import { Model, ObjectId } from 'mongoose';
+import {
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -26,6 +30,7 @@ export class UserService {
       email: email,
     });
   }
+
   async findAll() {
     return this.userModel.find();
   }

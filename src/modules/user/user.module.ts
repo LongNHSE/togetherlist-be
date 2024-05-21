@@ -6,6 +6,7 @@ import { User, userSchema } from './schema/user.schema';
 import { ImageModule } from '../image/image.module';
 import { JwtModule } from '@nestjs/jwt';
 import { OTP, otpSchema } from '../otp/schema/otp.schema';
+import { IsUserExistsConstraint } from './validator/is-user-exists.validator';
 
 @Module({
   controllers: [UserController],
@@ -15,7 +16,7 @@ import { OTP, otpSchema } from '../otp/schema/otp.schema';
     MongooseModule.forFeature([{ name: OTP.name, schema: otpSchema }]),
     JwtModule.register({})
   ],
-  providers: [UserService],
+  providers: [UserService, IsUserExistsConstraint],
   exports: [UserService],
 })
 export class UserModule {}

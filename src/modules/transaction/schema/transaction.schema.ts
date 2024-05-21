@@ -14,14 +14,14 @@ export class Transaction {
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'Invoice'
+    ref: 'Invoice',
   })
   invoiceId: string;
 
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   })
   userId: string;
 

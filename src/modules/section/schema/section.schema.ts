@@ -10,9 +10,6 @@ export class Section {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ ref: 'Board', required: true, type: mongoose.Schema.Types.ObjectId })
-  board: Board;
-
   @Prop({
     required: false,
     ref: 'Task',

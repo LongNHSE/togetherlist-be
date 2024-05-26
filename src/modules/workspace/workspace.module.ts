@@ -4,6 +4,7 @@ import { WorkspaceController } from './workspace.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WorkSpace, workspaceSchema } from './schema/workspace.schema';
 import { MemberModule } from '../member/member.module';
+import { IsWorkspaceExistConstraint } from './validator/is-workspace-existed.validator';
 
 @Module({
   controllers: [WorkspaceController],
@@ -13,7 +14,7 @@ import { MemberModule } from '../member/member.module';
       { name: WorkSpace.name, schema: workspaceSchema },
     ]),
   ],
-  providers: [WorkspaceService],
+  providers: [WorkspaceService, IsWorkspaceExistConstraint],
   exports: [WorkspaceService],
 })
 export class WorkspaceModule {}

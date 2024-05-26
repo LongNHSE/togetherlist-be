@@ -17,8 +17,6 @@ export class IsUserExistsConstraint implements ValidatorConstraintInterface {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async validate(userId: string) {
-    console.log('asdasdasd');
-    console.log(userId);
     const user = await this.userModel.findById(userId);
     return !!user;
   }

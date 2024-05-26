@@ -69,6 +69,7 @@ export class MemberService {
           as: 'workspace',
         },
       },
+      { $unwind: '$workspace' },
     ]);
   }
 }

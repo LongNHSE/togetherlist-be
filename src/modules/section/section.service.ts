@@ -3,7 +3,7 @@ import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Section } from './schema/section.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class SectionService {
@@ -11,6 +11,17 @@ export class SectionService {
     @InjectModel(Section.name) private sectionModel: Model<Section>,
   ) {}
 
+  pushTask(section: string, _id: Types.ObjectId) {
+    return this.sectionModel.findByIdAndUpdate(
+      { _id: section },
+      { $push: { tasks: _id } },
+      { new: true },
+    );
+  }
+
+  createDefaultSection() {
+    return this.sectionModel.create({ name: 'Default Section' });
+  }
   create(createSectionDto: CreateSectionDto) {
     return this.sectionModel.create(createSectionDto);
   }

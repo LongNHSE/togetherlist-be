@@ -11,11 +11,18 @@ export class WorkspaceService {
     @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
   ) {}
 
+  addBoardToWorkspace(boardId: Types.ObjectId, workspaceId: any) {
+    return this.workSpaceModel.findByIdAndUpdate(
+      { _id: workspaceId },
+      { $push: { boards: new mongoose.Types.ObjectId(boardId) } },
+      { new: true },
+    );
+  }
+
   isOwner(id: string, userId: any) {
     return this.workSpaceModel.findOne({ owner: userId, _id: id });
   }
   findSharedWorkSpaces(userId: any) {
-    console.log(userId);
     return this.workSpaceModel.aggregate([
       //Get the workspace
       { $match: { members: new mongoose.Types.ObjectId(userId) } },

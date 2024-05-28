@@ -47,6 +47,11 @@ export class BoardService {
         },
       },
       {
+        $match: {
+          'sections.tasks.status': { $exists: true, $ne: null },
+        },
+      },
+      {
         $group: {
           _id: {
             boardId: '$_id',
@@ -114,8 +119,28 @@ export class BoardService {
     return `This action returns all board`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} board`;
+  async findOne(id: string) {
+    return await this.boardModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'sections',
+          localField: 'sections',
+          foreignField: '_id',
+          as: 'sections',
+          pipeline: [
+            {
+              $lookup: {
+                from: 'tasks',
+                localField: '_id',
+                foreignField: 'section',
+                as: 'tasks',
+              },
+            },
+          ],
+        },
+      },
+    ]);
   }
 
   update(id: number, updateBoardDto: UpdateBoardDto) {

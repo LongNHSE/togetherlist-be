@@ -18,7 +18,7 @@ export class Task {
     ref: 'Section',
     required: true,
   })
-  section: Section;
+  section: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   assignee: User;

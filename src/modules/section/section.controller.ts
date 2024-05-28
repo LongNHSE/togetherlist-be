@@ -36,7 +36,11 @@ export class SectionController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sectionService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      const result = await this.sectionService.remove(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

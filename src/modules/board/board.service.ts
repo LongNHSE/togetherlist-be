@@ -10,6 +10,7 @@ export class BoardService {
   constructor(@InjectModel(Board.name) private boardModel: Model<Board>) {}
 
   async findBoardsByWorkspaceId(workspaceId: string) {
+    console.log(workspaceId);
     return await this.boardModel.aggregate([
       {
         $match: {
@@ -47,11 +48,6 @@ export class BoardService {
         },
       },
       {
-        $match: {
-          'sections.tasks.status': { $exists: true, $ne: null },
-        },
-      },
-      {
         $group: {
           _id: {
             boardId: '$_id',
@@ -80,13 +76,42 @@ export class BoardService {
           totalTask: '$total',
           taskStatus: '$_id.taskStatus',
           statuses: {
+            $filter: {
+              input: '$statuses',
+              as: 'status',
+              cond: { $in: ['$$status.status', '$_id.taskStatus'] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          statuses: {
+            $cond: {
+              if: { $eq: [{ $size: '$statuses' }, 0] },
+              then: [],
+              else: '$statuses',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: '$_id',
+          name: '$name',
+          totalTask: '$totalTask',
+          taskStatus: '$taskStatus',
+          statuses: {
             $map: {
               input: '$statuses',
               as: 'status',
               in: {
                 label: '$$status.status',
                 value: {
-                  $multiply: [{ $divide: ['$$status.count', '$total'] }, 100],
+                  $multiply: [
+                    { $divide: ['$$status.count', '$totalTask'] },
+                    100,
+                  ],
                 },
               },
             },

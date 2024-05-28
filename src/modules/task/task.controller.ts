@@ -16,6 +16,7 @@ import { BoardService } from '../board/board.service';
 import { apiSuccess } from 'src/common/api-response';
 import { SectionService } from '../section/section.service';
 import e from 'express';
+import mongoose, { ObjectId } from 'mongoose';
 
 @Controller('tasks')
 export class TaskController {
@@ -37,7 +38,10 @@ export class TaskController {
 
       const result = await this.taskService.create(createTaskDto);
       if (result) {
-        await this.sectionService.pushTask(createTaskDto.section, result._id);
+        await this.sectionService.pushTask(
+          createTaskDto.section,
+          new mongoose.Types.ObjectId(result._id),
+        );
         await this.boardService.updateIndex(createTaskDto.board);
         return apiSuccess(200, result, 'Test');
       }

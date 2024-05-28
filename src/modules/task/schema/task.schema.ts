@@ -43,6 +43,8 @@ export class Task {
 
   @Prop({ required: true, type: Boolean, default: false })
   isPriority: boolean;
+
+  _id: string;
 }
 
 export const taskSchema = SchemaFactory.createForClass(Task);

@@ -5,12 +5,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Section } from './schema/section.schema';
 import { Model, Types } from 'mongoose';
 import { Board } from '../board/schema/board.schema';
+import { Task } from '../task/schema/task.schema';
 
 @Injectable()
 export class SectionService {
   constructor(
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Board.name) private boardModel: Model<Board>,
+    @InjectModel(Task.name) private readonly taskModel: Model<Task>,
   ) {}
 
   pushTask(section: string, _id: Types.ObjectId) {
@@ -21,8 +23,11 @@ export class SectionService {
     );
   }
 
-  createDefaultSection() {
-    return this.sectionModel.create({ name: 'Default Section' });
+  createDefaultSection(workspace: string) {
+    return this.sectionModel.create({
+      name: 'Default Section',
+      workspace: workspace,
+    });
   }
   async create(createSectionDto: any) {
     const result = await this.sectionModel.create(createSectionDto);
@@ -47,7 +52,20 @@ export class SectionService {
     return `This action updates a #${id} section`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} section`;
+  async remove(id: string) {
+    try {
+      const result = await this.sectionModel.findByIdAndDelete(id);
+      if (result) {
+        await this.boardModel.updateOne(
+          { _id: result.board },
+          { $pull: { sections: id } },
+        );
+        result.tasks.forEach(async (task) => {
+          await this.taskModel.findByIdAndDelete(task._id);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -14,7 +14,7 @@ export class WorkspaceService {
   addBoardToWorkspace(boardId: Types.ObjectId, workspaceId: any) {
     return this.workSpaceModel.findByIdAndUpdate(
       { _id: workspaceId },
-      { $push: { boards: new mongoose.Types.ObjectId(boardId) } },
+      { $push: { boards: boardId } },
       { new: true },
     );
   }

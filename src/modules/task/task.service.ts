@@ -58,11 +58,12 @@ export class TaskService {
           { _id: result.section },
           { $pull: { tasks: id } },
         );
-        const result2 = await this.boardModel.updateOne(
-          { _id: result.board },
-          { $inc: { totalTask: -1 } },
-        );
-        console.log(result2);
+        //The toltalTask should not change because it the index of the task
+        // const result2 = await this.boardModel.updateOne(
+        //   { _id: result.board },
+        //   { $inc: { totalTask: -1 } },
+        // );
+        // console.log(result2);
         return result;
       }
     } catch (error) {

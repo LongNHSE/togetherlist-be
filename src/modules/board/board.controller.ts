@@ -31,7 +31,9 @@ export class BoardController {
   @UseGuards(AuthGuard('jwt'))
   async create(@Body() createBoardDto: CreateBoardDto) {
     try {
-      const defaultSection = await this.sectionService.createDefaultSection();
+      const defaultSection = await this.sectionService.createDefaultSection(
+        createBoardDto.workspace,
+      );
       if (defaultSection) {
         createBoardDto.sections = [defaultSection._id.toString()];
         const result = await this.boardService.create(createBoardDto);
@@ -89,7 +91,12 @@ export class BoardController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.boardService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      // const result = await this.boardService.remove(id);
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, {}, 'Delete board failed');
+    }
   }
 }

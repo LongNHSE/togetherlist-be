@@ -21,7 +21,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(req: express.Request, payload: any) {
-    console.log(req.headers);
     const token =
       ExtractJwt.fromExtractors([ExtractJwt.fromAuthHeaderAsBearerToken()])(
         req,
@@ -32,7 +31,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (isBlacklisted) {
       throw new UnauthorizedException('This token has been blacklisted'); // Handle blacklisted token appropriately
     }
-    console.log(payload);
     return { userId: payload.userId, refreshToken: payload.refreshToken };
   }
 }

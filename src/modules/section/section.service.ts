@@ -4,11 +4,13 @@ import { UpdateSectionDto } from './dto/update-section.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Section } from './schema/section.schema';
 import { Model, Types } from 'mongoose';
+import { Board } from '../board/schema/board.schema';
 
 @Injectable()
 export class SectionService {
   constructor(
     @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Board.name) private boardModel: Model<Board>,
   ) {}
 
   pushTask(section: string, _id: Types.ObjectId) {
@@ -22,8 +24,15 @@ export class SectionService {
   createDefaultSection() {
     return this.sectionModel.create({ name: 'Default Section' });
   }
-  create(createSectionDto: CreateSectionDto) {
-    return this.sectionModel.create(createSectionDto);
+  async create(createSectionDto: any) {
+    const result = await this.sectionModel.create(createSectionDto);
+    if (result) {
+      await this.boardModel.updateOne(
+        { _id: createSectionDto.board },
+        { $push: { sections: result._id } },
+      );
+    }
+    return result;
   }
 
   findAll() {

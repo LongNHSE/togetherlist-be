@@ -15,6 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { BoardService } from '../board/board.service';
 import { apiSuccess } from 'src/common/api-response';
 import { SectionService } from '../section/section.service';
+import e from 'express';
 
 @Controller('tasks')
 export class TaskController {
@@ -54,12 +55,31 @@ export class TaskController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(+id, updateTaskDto);
+  async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+    try {
+      console.log(updateTaskDto);
+      const result = await this.taskService.update(id, updateTaskDto);
+      console.log(result);
+      if (result) {
+        return apiSuccess(200, result, 'Update task successfully');
+      } else {
+        return apiSuccess(400, {}, 'Update task failed');
+      }
+    } catch (error) {}
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taskService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      const result = await this.taskService.remove(id);
+      if (result) {
+        return apiSuccess(200, result, 'Delete task successfully');
+      } else {
+        return apiSuccess(400, {}, 'Delete task failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiSuccess(400, {}, 'Delete task failed');
+    }
   }
 }

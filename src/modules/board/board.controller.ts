@@ -69,8 +69,18 @@ export class BoardController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boardService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const board = await this.boardService.findOne(id);
+      if (board) {
+        return apiSuccess(200, board[0], 'Get board successfully');
+      } else {
+        return apiFailed(400, {}, 'Get board failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, {}, 'Get board failed');
+    }
   }
 
   @Patch(':id')

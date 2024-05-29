@@ -38,6 +38,10 @@ export class BoardController {
         createBoardDto.sections = [defaultSection._id.toString()];
         const result = await this.boardService.create(createBoardDto);
         if (result) {
+          await this.sectionService.updateBoardId(
+            defaultSection._id,
+            result._id,
+          );
           await this.workspaceService.addBoardToWorkspace(
             result._id,
             result.workspace,
@@ -93,7 +97,12 @@ export class BoardController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
-      // const result = await this.boardService.remove(id);
+      const result = await this.boardService.remove(id);
+      if (result) {
+        return apiSuccess(200, result, 'Delete board successfully');
+      } else {
+        return apiFailed(400, {}, 'Delete board failed');
+      }
     } catch (error) {
       console.log(error);
       return apiFailed(400, {}, 'Delete board failed');

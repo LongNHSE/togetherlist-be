@@ -13,6 +13,9 @@ export class Section {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Board' })
   board: string;
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' })
+  workspace: string;
+
   @Prop({
     required: false,
     ref: 'Task',

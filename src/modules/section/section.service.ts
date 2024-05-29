@@ -9,6 +9,9 @@ import { Task } from '../task/schema/task.schema';
 
 @Injectable()
 export class SectionService {
+  updateBoardId(_id: Types.ObjectId, _id1: Types.ObjectId) {
+    return this.sectionModel.updateOne({ _id }, { board: _id1 });
+  }
   constructor(
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Board.name) private boardModel: Model<Board>,
@@ -63,6 +66,7 @@ export class SectionService {
         result.tasks.forEach(async (task) => {
           await this.taskModel.findByIdAndDelete(task._id);
         });
+        return result;
       }
     } catch (error) {
       console.log(error);

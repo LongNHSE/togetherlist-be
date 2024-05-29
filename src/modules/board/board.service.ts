@@ -4,10 +4,16 @@ import { UpdateBoardDto } from './dto/update-board.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Board } from './schema/board.schema';
 import mongoose, { Model } from 'mongoose';
+import { Section } from '../section/schema/section.schema';
+import { Task } from '../task/schema/task.schema';
 
 @Injectable()
 export class BoardService {
-  constructor(@InjectModel(Board.name) private boardModel: Model<Board>) {}
+  constructor(
+    @InjectModel(Board.name) private boardModel: Model<Board>,
+    @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Task.name) private taskModel: Model<any>,
+  ) {}
 
   async findBoardsByWorkspaceId(workspaceId: string) {
     console.log(workspaceId);
@@ -172,7 +178,18 @@ export class BoardService {
     return `This action updates a #${id} board`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} board`;
+  async remove(id: string) {
+    try {
+      const result = await this.boardModel.findByIdAndDelete(id);
+      if (result) {
+        await this.sectionModel.deleteMany({ board: id });
+        await this.taskModel.deleteMany({ board: id });
+        return result;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

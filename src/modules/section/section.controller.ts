@@ -10,6 +10,7 @@ import {
 import { SectionService } from './section.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
+import { apiSuccess, apiFailed } from 'src/common/api-response';
 
 @Controller('sections')
 export class SectionController {
@@ -39,6 +40,11 @@ export class SectionController {
   async remove(@Param('id') id: string) {
     try {
       const result = await this.sectionService.remove(id);
+      if (result) {
+        return apiSuccess(200, result, 'Delete section successfully');
+      } else {
+        return apiFailed(400, {}, 'Delete section failed');
+      }
     } catch (error) {
       console.log(error);
     }

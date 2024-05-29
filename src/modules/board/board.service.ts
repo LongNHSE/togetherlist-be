@@ -217,8 +217,8 @@ export class BoardService {
     return doc ? doc.totalTask : 0;
   }
 
-  create(createBoardDto: CreateBoardDto) {
-    return this.boardModel.create(createBoardDto);
+  async create(createBoardDto: CreateBoardDto) {
+    return await this.boardModel.create(createBoardDto);
   }
 
   findAll() {

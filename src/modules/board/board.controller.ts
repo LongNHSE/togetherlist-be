@@ -46,7 +46,7 @@ export class BoardController {
             result._id,
             result.workspace,
           );
-          return apiSuccess(200, { result }, 'Create board successfully');
+          return apiSuccess(200, result, 'Create board successfully');
         } else {
           return apiFailed(400, {}, 'Create board failed');
         }

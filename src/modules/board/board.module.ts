@@ -19,7 +19,6 @@ import { Section, sectionSchema } from '../section/schema/section.schema';
     SectionModule,
     MongooseModule.forFeature([{ name: Task.name, schema: taskSchema }]),
     MongooseModule.forFeature([{ name: Section.name, schema: sectionSchema }]),
-
     MongooseModule.forFeature([{ name: Board.name, schema: boardSchema }]),
     MongooseModule.forFeature([
       { name: WorkSpace.name, schema: workspaceSchema },

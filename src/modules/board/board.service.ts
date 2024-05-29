@@ -19,9 +19,13 @@ export class BoardService {
     console.log(workspaceId);
     return await this.boardModel.aggregate([
       {
-        $match: {
-          workspace: new mongoose.Types.ObjectId(workspaceId),
-        },
+        $match:
+          /**
+           * query: The query in MQL.
+           */
+          {
+            workspace: new mongoose.Types.ObjectId(workspaceId),
+          },
       },
       {
         $lookup: {
@@ -42,87 +46,158 @@ export class BoardService {
         },
       },
       {
-        $unwind: {
-          path: '$sections',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $unwind: {
-          path: '$sections.tasks',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $group: {
-          _id: {
-            boardId: '$_id',
-            boardName: '$name',
-            taskStatus: '$taskStatus',
-            status: '$sections.tasks.status',
+        $unwind:
+          /**
+           * path: Path to the array field.
+           * includeArrayIndex: Optional name for index.
+           * preserveNullAndEmptyArrays: Optional
+           *   toggle to unwind null and empty values.
+           */
+          {
+            path: '$sections',
+            preserveNullAndEmptyArrays: true,
           },
-          count: { $sum: 1 },
-        },
       },
       {
-        $group: {
-          _id: {
-            boardId: '$_id.boardId',
-            boardName: '$_id.boardName',
-            taskStatus: '$_id.taskStatus',
+        $unwind:
+          /**
+           * path: Path to the array field.
+           * includeArrayIndex: Optional name for index.
+           * preserveNullAndEmptyArrays: Optional
+           *   toggle to unwind null and empty values.
+           */
+          {
+            path: '$sections.tasks',
+            preserveNullAndEmptyArrays: true,
           },
-          total: { $sum: '$count' },
-          statuses: { $push: { status: '$_id.status', count: '$count' } },
-        },
       },
       {
-        $project: {
-          _id: '$_id.boardId',
-          name: '$_id.boardName',
-          totalTask: '$total',
-          taskStatus: '$_id.taskStatus',
-          statuses: {
-            $filter: {
-              input: '$statuses',
-              as: 'status',
-              cond: { $in: ['$$status.status', '$_id.taskStatus'] },
+        $group:
+          /**
+           * _id: The id of the group.
+           * fieldN: The first field name.
+           */
+          {
+            _id: {
+              boardId: '$_id',
+              boardName: '$name',
+              status: '$taskStatus',
+              taskStatus: {
+                $cond: {
+                  if: {
+                    $gt: [
+                      {
+                        $type: '$sections.tasks',
+                      },
+                      'missing',
+                    ],
+                  },
+                  then: '$sections.tasks.status',
+                  else: null,
+                },
+              },
             },
-          },
-        },
-      },
-      {
-        $addFields: {
-          statuses: {
-            $cond: {
-              if: { $eq: [{ $size: '$statuses' }, 0] },
-              then: [],
-              else: '$statuses',
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: '$_id',
-          name: '$name',
-          totalTask: '$totalTask',
-          taskStatus: '$taskStatus',
-          statuses: {
-            $map: {
-              input: '$statuses',
-              as: 'status',
-              in: {
-                label: '$$status.status',
-                value: {
-                  $multiply: [
-                    { $divide: ['$$status.count', '$totalTask'] },
-                    100,
-                  ],
+            taskCount: {
+              $sum: {
+                $cond: {
+                  if: {
+                    $gt: [
+                      {
+                        $type: '$sections.tasks',
+                      },
+                      'missing',
+                    ],
+                  },
+                  then: 1,
+                  else: 0,
                 },
               },
             },
           },
-        },
+      },
+      {
+        $group:
+          /**
+           * _id: The id of the group.
+           * fieldN: The first field name.
+           */
+          {
+            _id: {
+              boardId: '$_id.boardId',
+              boardName: '$_id.boardName',
+              taskStatus: '$_id.status',
+            },
+            totalTask: {
+              $sum: '$taskCount',
+            },
+            statuses: {
+              $push: {
+                status: '$_id.taskStatus',
+                count: '$taskCount',
+              },
+            },
+          },
+      },
+      {
+        $project:
+          /**
+           * specifications: The fields to
+           *   include or exclude.
+           */
+          {
+            taskStatus: '$_id.taskStatus',
+            _id: '$_id.boardId',
+            name: '$_id.boardName',
+            totalTask: '$totalTask',
+            statuses: {
+              $map: {
+                input: '$statuses',
+                as: 'status',
+                in: {
+                  label: '$$status.status',
+                  value: {
+                    $cond: {
+                      if: {
+                        $gt: ['$$status.count', 0],
+                      },
+                      then: {
+                        $multiply: [
+                          {
+                            $divide: ['$$status.count', '$totalTask'],
+                          },
+                          100,
+                        ],
+                      },
+                      else: 0,
+                    },
+                  },
+                },
+              },
+            },
+          },
+      },
+      {
+        $addFields:
+          /**
+           * newField: The new field name.
+           * expression: The new field expression.
+           */
+          {
+            statuses: {
+              $cond: {
+                if: {
+                  $eq: [
+                    {
+                      $size: '$statuses',
+                    },
+                    0,
+                  ],
+                },
+                then: [],
+                else: '$statuses',
+              },
+            },
+          },
       },
     ]);
   }

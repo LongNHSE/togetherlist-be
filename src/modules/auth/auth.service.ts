@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
 import { AuthDTO, LoginDTO } from './dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -127,6 +127,53 @@ export class AuthService {
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.signToken(user.id);
     return tokens;
+  }
+
+  async decodeToken(token: string) {
+    const decodedToken = await this.jwt.verifyAsync(token);
+    return decodedToken;
+  }
+
+  async verifyAdminToken(token: string): Promise<boolean> {
+    if (!token) {
+      throw new HttpException("Token is required", 400);
+    }
+    const decodedToken = await this.decodeToken(token);
+    if (decodedToken.userId && decodedToken.exp < Date.now()) {
+      var account = await this.userModel.findById(decodedToken.userId);
+      if (account?._id === decodedToken.userId && account?.role === "admin") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async verifyStaffToken(token: string): Promise<boolean> {
+    if (!token) {
+      throw new HttpException("Token is required", 400);
+    }
+    const decodedToken = await this.decodeToken(token);
+    if (decodedToken.userId && decodedToken.exp < Date.now()) {
+      var account = await this.userModel.findById(decodedToken.userId);
+      if (account?._id === decodedToken.userId && (account?.role === "admin" || account?.role === 'staff')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async verifyToken(token: string): Promise<boolean> {
+    if (!token) {
+      throw new HttpException("Token is required", 400);
+    }
+    const decodedToken = await this.decodeToken(token);
+    if (decodedToken.userId && decodedToken.exp < Date.now()) {
+      var account = await this.userModel.findById(decodedToken.userId);
+      if (account?._id === decodedToken.userId) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 // Path: src/auth/dto/auth.dto.ts

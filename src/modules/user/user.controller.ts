@@ -51,7 +51,11 @@ export class UserController {
         throw apiFailed(404, null, 'Empty list users');
       }
 
-      return apiSuccess(200, { users: listUsers, count: listUsers.length }, 'Get list users successfully');
+      return apiSuccess(
+        200,
+        { users: listUsers, count: listUsers.length },
+        'Get list users successfully',
+      );
     } catch (error) {
       throw apiFailed(error.statusCode, null, error.message);
     }
@@ -119,7 +123,7 @@ export class UserController {
   async getProfileDetailByToken(@Headers('authorization') jwt: string) {
     try {
       const profile = await this.userService.getProfileDetailByToken(jwt);
- 
+
       if (!profile) {
         throw apiFailed(404, null, 'Profile not found');
       }
@@ -132,7 +136,10 @@ export class UserController {
 
   @Post('password/update')
   @UseGuards(AuthGuard('jwt'))
-  async updateUserPassword(@Body() updatePasswordDto: UpdatePasswordDto, @Headers('authorization') jwt: string) {
+  async updateUserPassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Headers('authorization') jwt: string,
+  ) {
     try {
       await this.userService.updateUserPassword(updatePasswordDto, jwt);
       return apiSuccess(200, null, 'User password update successfully');

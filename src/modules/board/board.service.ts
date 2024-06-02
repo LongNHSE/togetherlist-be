@@ -19,13 +19,9 @@ export class BoardService {
     console.log(workspaceId);
     return await this.boardModel.aggregate([
       {
-        $match:
-          /**
-           * query: The query in MQL.
-           */
-          {
-            workspace: new mongoose.Types.ObjectId(workspaceId),
-          },
+        $match: {
+          workspace: new mongoose.Types.ObjectId(workspaceId),
+        },
       },
       {
         $lookup: {
@@ -46,158 +42,132 @@ export class BoardService {
         },
       },
       {
-        $unwind:
-          /**
-           * path: Path to the array field.
-           * includeArrayIndex: Optional name for index.
-           * preserveNullAndEmptyArrays: Optional
-           *   toggle to unwind null and empty values.
-           */
-          {
-            path: '$sections',
-            preserveNullAndEmptyArrays: true,
-          },
+        $unwind: {
+          path: '$sections',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
-        $unwind:
-          /**
-           * path: Path to the array field.
-           * includeArrayIndex: Optional name for index.
-           * preserveNullAndEmptyArrays: Optional
-           *   toggle to unwind null and empty values.
-           */
-          {
-            path: '$sections.tasks',
-            preserveNullAndEmptyArrays: true,
-          },
+        $unwind: {
+          path: '$sections.tasks',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
-        $group:
-          /**
-           * _id: The id of the group.
-           * fieldN: The first field name.
-           */
-          {
-            _id: {
-              boardId: '$_id',
-              boardName: '$name',
-              status: '$taskStatus',
-              taskStatus: {
-                $cond: {
-                  if: {
-                    $gt: [
-                      {
-                        $type: '$sections.tasks',
-                      },
-                      'missing',
-                    ],
-                  },
-                  then: '$sections.tasks.status',
-                  else: null,
-                },
-              },
-            },
-            taskCount: {
-              $sum: {
-                $cond: {
-                  if: {
-                    $gt: [
-                      {
-                        $type: '$sections.tasks',
-                      },
-                      'missing',
-                    ],
-                  },
-                  then: 1,
-                  else: 0,
-                },
-              },
-            },
-          },
-      },
-      {
-        $group:
-          /**
-           * _id: The id of the group.
-           * fieldN: The first field name.
-           */
-          {
-            _id: {
-              boardId: '$_id.boardId',
-              boardName: '$_id.boardName',
-              taskStatus: '$_id.status',
-            },
-            totalTask: {
-              $sum: '$taskCount',
-            },
-            statuses: {
-              $push: {
-                status: '$_id.taskStatus',
-                count: '$taskCount',
-              },
-            },
-          },
-      },
-      {
-        $project:
-          /**
-           * specifications: The fields to
-           *   include or exclude.
-           */
-          {
-            taskStatus: '$_id.taskStatus',
-            _id: '$_id.boardId',
-            name: '$_id.boardName',
-            totalTask: '$totalTask',
-            statuses: {
-              $map: {
-                input: '$statuses',
-                as: 'status',
-                in: {
-                  label: '$$status.status',
-                  value: {
-                    $cond: {
-                      if: {
-                        $gt: ['$$status.count', 0],
-                      },
-                      then: {
-                        $multiply: [
-                          {
-                            $divide: ['$$status.count', '$totalTask'],
-                          },
-                          100,
-                        ],
-                      },
-                      else: 0,
-                    },
-                  },
-                },
-              },
-            },
-          },
-      },
-      {
-        $addFields:
-          /**
-           * newField: The new field name.
-           * expression: The new field expression.
-           */
-          {
-            statuses: {
+        $group: {
+          _id: {
+            boardId: '$_id',
+            boardName: '$name',
+            createdAt: '$createdAt',
+            status: '$taskStatus',
+            taskStatus: {
               $cond: {
                 if: {
-                  $eq: [
+                  $gt: [
                     {
-                      $size: '$statuses',
+                      $type: '$sections.tasks',
                     },
-                    0,
+                    'missing',
                   ],
                 },
-                then: [],
-                else: '$statuses',
+                then: '$sections.tasks.status',
+                else: null,
               },
             },
           },
+          taskCount: {
+            $sum: {
+              $cond: {
+                if: {
+                  $gt: [
+                    {
+                      $type: '$sections.tasks',
+                    },
+                    'missing',
+                  ],
+                },
+                then: 1,
+                else: 0,
+              },
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            boardId: '$_id.boardId',
+            boardName: '$_id.boardName',
+            createdAt: '$_id.createdAt',
+            taskStatus: '$_id.status',
+          },
+          totalTask: {
+            $sum: '$taskCount',
+          },
+          statuses: {
+            $push: {
+              status: '$_id.taskStatus',
+              count: '$taskCount',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          taskStatus: '$_id.taskStatus',
+          _id: '$_id.boardId',
+          name: '$_id.boardName',
+          createdAt: '$_id.createdAt',
+          totalTask: '$totalTask',
+          statuses: {
+            $map: {
+              input: '$statuses',
+              as: 'status',
+              in: {
+                label: '$$status.status',
+                value: {
+                  $cond: {
+                    if: {
+                      $gt: ['$$status.count', 0],
+                    },
+                    then: {
+                      $multiply: [
+                        {
+                          $divide: ['$$status.count', '$totalTask'],
+                        },
+                        100,
+                      ],
+                    },
+                    else: 0,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          statuses: {
+            $cond: {
+              if: {
+                $eq: [
+                  {
+                    $size: '$statuses',
+                  },
+                  0,
+                ],
+              },
+              then: [],
+              else: '$statuses',
+            },
+          },
+        },
+      },
+      {
+        $sort: {
+          createdAt: 1, // Sort by createdAt in ascending order. Use -1 for descending order.
+        },
       },
     ]);
   }

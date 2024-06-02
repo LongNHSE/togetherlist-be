@@ -136,12 +136,12 @@ export class AuthService {
 
   async verifyAdminToken(token: string): Promise<boolean> {
     if (!token) {
-      throw new HttpException("Token is required", 400);
+      throw new HttpException('Token is required', 400);
     }
     const decodedToken = await this.decodeToken(token);
     if (decodedToken.userId && decodedToken.exp < Date.now()) {
-      var account = await this.userModel.findById(decodedToken.userId);
-      if (account?._id === decodedToken.userId && account?.role === "admin") {
+      const account = await this.userModel.findById(decodedToken.userId);
+      if (account?._id === decodedToken.userId && account?.role === 'admin') {
         return true;
       }
     }
@@ -150,12 +150,15 @@ export class AuthService {
 
   async verifyStaffToken(token: string): Promise<boolean> {
     if (!token) {
-      throw new HttpException("Token is required", 400);
+      throw new HttpException('Token is required', 400);
     }
     const decodedToken = await this.decodeToken(token);
     if (decodedToken.userId && decodedToken.exp < Date.now()) {
-      var account = await this.userModel.findById(decodedToken.userId);
-      if (account?._id === decodedToken.userId && (account?.role === "admin" || account?.role === 'staff')) {
+      const account = await this.userModel.findById(decodedToken.userId);
+      if (
+        account?._id === decodedToken.userId &&
+        (account?.role === 'admin' || account?.role === 'staff')
+      ) {
         return true;
       }
     }
@@ -164,11 +167,11 @@ export class AuthService {
 
   async verifyToken(token: string): Promise<boolean> {
     if (!token) {
-      throw new HttpException("Token is required", 400);
+      throw new HttpException('Token is required', 400);
     }
     const decodedToken = await this.decodeToken(token);
     if (decodedToken.userId && decodedToken.exp < Date.now()) {
-      var account = await this.userModel.findById(decodedToken.userId);
+      const account = await this.userModel.findById(decodedToken.userId);
       if (account?._id === decodedToken.userId) {
         return true;
       }

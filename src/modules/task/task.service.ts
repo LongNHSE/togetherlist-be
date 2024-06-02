@@ -27,24 +27,43 @@ export class TaskService {
     return `This action returns a #${id} task`;
   }
 
+  // async update(id: string, updateTaskDto: UpdateTaskDto) {
+  //   try {
+  //     // let task = await this.taskModel.findById(id);
+  //     // if (!task) return null;
+  //     if (task?.section !== updateTaskDto.section && updateTaskDto.section) {
+  //       await this.sectionModel.updateOne(
+  //         { _id: updateTaskDto?.section },
+  //         { $pull: { tasks: id } },
+  //       );
+  //       await this.sectionModel.updateOne(
+  //         { _id: updateTaskDto.section },
+  //         { $push: { tasks: id } },
+  //       );
+  //       // task.section = updateTaskDto.section || '';
+  //     }
+
+  //     return await task.save();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
+
   async update(id: string, updateTaskDto: UpdateTaskDto) {
     try {
-      const task = await this.taskModel.findById(id);
-      if (!task) return null;
-      if (task?.section !== updateTaskDto.section && updateTaskDto.section) {
+      if (updateTaskDto.section && updateTaskDto.section) {
         await this.sectionModel.updateOne(
-          { _id: task?.section },
+          { _id: updateTaskDto?.section },
           { $pull: { tasks: id } },
         );
         await this.sectionModel.updateOne(
           { _id: updateTaskDto.section },
           { $push: { tasks: id } },
         );
-        task.section = updateTaskDto.section || '';
       }
-      task.status = updateTaskDto.status || '';
-
-      return await task.save();
+      return await this.taskModel.findByIdAndUpdate(id, updateTaskDto, {
+        new: true,
+      });
     } catch (error) {
       console.log(error);
     }

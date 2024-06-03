@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { SectionService } from '../section/section.service';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { UpdateBoardStatusDto } from './dto/update-board-status.dto';
+import { CreateBoardStatusDto } from './dto/create-board-status.dto';
 
 @Controller('boards')
 export class BoardController {
@@ -90,24 +90,39 @@ export class BoardController {
     }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
-    return this.boardService.update(+id, updateBoardDto);
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
+  //  return this.boardService.update(id, updateBoardDto);
+  // }
+
+  @Post(':id/board-status')
+  async addNewStatus(
+    @Param('id') id: string,
+    @Body() status: CreateBoardStatusDto,
+  ) {
+    try {
+      const result = await this.boardService.addNewStatus(id, status);
+      if (result) {
+        return apiSuccess(200, result, 'Add new status successfully');
+      } else {
+        return apiFailed(400, {}, 'Add new status failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, {}, 'Add new status failed');
+    }
   }
 
-  @Patch(':id/board-status')
+  @Patch(':id/board-status/:statusId')
   async updateBoardStatus(
     @Param('id') id: string,
+    @Param('statusId') statusId: string,
     @Body() updateBoardStatusDto: UpdateBoardStatusDto,
   ) {
     try {
-      //   {
-      //     "name": "Unassigned",
-      //     "color": "#b3b3a3",
-      //     "index": 1
-      // },
       const result = await this.boardService.updateBoardStatus(
         id,
+        statusId,
         updateBoardStatusDto,
       );
       if (result) {

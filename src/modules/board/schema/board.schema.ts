@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Section } from 'src/modules/section/schema/section.schema';
-import { Task } from 'src/modules/task/schema/task.schema';
 import { WorkSpace } from 'src/modules/workspace/schema/workspace.schema';
 import { Status } from './status.schema';
 

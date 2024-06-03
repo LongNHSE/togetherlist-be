@@ -15,8 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { BoardService } from '../board/board.service';
 import { apiSuccess } from 'src/common/api-response';
 import { SectionService } from '../section/section.service';
-import e from 'express';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 
 @Controller('tasks')
 export class TaskController {
@@ -68,7 +67,9 @@ export class TaskController {
       } else {
         return apiSuccess(400, {}, 'Update task failed');
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @Delete(':id')

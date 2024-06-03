@@ -141,6 +141,11 @@ export class BoardController {
     try {
       const result = await this.boardService.remove(id);
       if (result) {
+        console.log(result);
+        await this.workspaceService.removeBoardFromWorkspace(
+          result.workspace as string,
+          id,
+        );
         return apiSuccess(200, result, 'Delete board successfully');
       } else {
         return apiFailed(400, {}, 'Delete board failed');

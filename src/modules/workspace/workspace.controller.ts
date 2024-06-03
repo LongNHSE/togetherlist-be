@@ -50,39 +50,6 @@ export class WorkspaceController {
     }
   }
 
-  @Post(':id/members')
-  @UseGuards(AuthGuard('jwt'))
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  )
-  async inviteMember(
-    @Param('id') id: string,
-    @Body() members: CreateMemberDto,
-    @GetUser() user: any,
-  ) {
-    try {
-      const isExist = await this.workspaceService.isExist(id);
-      if (!isExist) {
-        return apiFailed(400, 'Workspace not found');
-      }
-      const isOwner = await this.workspaceService.isOwner(id, user.userId);
-      if (!isOwner) {
-        return apiFailed(400, `You don't have permission`);
-      }
-      const result = await this.memberService.create(id, members.members);
-      if (result) {
-        return apiSuccess(200, result, 'Add member successfully');
-      } else {
-        return apiFailed(400, 'Add member failed');
-      }
-    } catch (error) {
-      return error;
-    }
-  }
-
   @Get()
   async findAll() {
     try {
@@ -131,7 +98,76 @@ export class WorkspaceController {
       return apiFailed(400, 'Get workspace failed');
     }
   }
+  @Get(':id/owner')
+  @UseGuards(AuthGuard('jwt'))
+  async getOwner(@Param('id') id: string) {
+    try {
+      const isExist = await this.workspaceService.isExist(id);
+      if (!isExist) {
+        return apiFailed(400, 'Workspace not found');
+      }
+      const result = await this.workspaceService.getOwner(id);
+      if (result) {
+        return apiSuccess(200, result, 'Get owner successfully');
+      } else {
+        return apiFailed(400, 'Get owner failed');
+      }
+    } catch (error) {
+      return error;
+    }
+  }
 
+  @Get(':id/members')
+  @UseGuards(AuthGuard('jwt'))
+  async getMembers(@Param('id') id: string) {
+    try {
+      const isExist = await this.workspaceService.isExist(id);
+      if (!isExist) {
+        return apiFailed(400, 'Workspace not found');
+      }
+      const result = await this.memberService.findAll(id);
+      if (result) {
+        return apiSuccess(200, result, 'Get all members successfully');
+      } else {
+        return apiFailed(400, 'Get all members failed');
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post(':id/members')
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  )
+  async inviteMember(
+    @Param('id') id: string,
+    @Body() members: CreateMemberDto,
+    @GetUser() user: any,
+  ) {
+    try {
+      const isExist = await this.workspaceService.isExist(id);
+      if (!isExist) {
+        return apiFailed(400, 'Workspace not found');
+      }
+      const isOwner = await this.workspaceService.isOwner(id, user.userId);
+      if (!isOwner) {
+        return apiFailed(400, `You don't have permission`);
+      }
+      const result = await this.memberService.create(id, members.members);
+      if (result) {
+        return apiSuccess(200, result, 'Add member successfully');
+      } else {
+        return apiFailed(400, 'Add member failed');
+      }
+    } catch (error) {
+      return error;
+    }
+  }
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.workspaceService.findOne(id);

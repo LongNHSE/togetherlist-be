@@ -39,9 +39,12 @@ export class TaskService {
           { $push: { tasks: id } },
         );
       }
-      return await this.taskModel.findByIdAndUpdate(id, updateTaskDto, {
-        new: true,
-      });
+      console.log(updateTaskDto);
+      return await this.taskModel
+        .findByIdAndUpdate(id, updateTaskDto, {
+          new: true,
+        })
+        .populate('assignee');
     } catch (error) {
       console.log(error);
     }

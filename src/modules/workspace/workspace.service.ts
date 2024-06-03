@@ -7,6 +7,19 @@ import mongoose, { Model, Types } from 'mongoose';
 
 @Injectable()
 export class WorkspaceService {
+  getOwner(id: string) {
+    return this.workSpaceModel
+      .findById(id)
+      .select('owner')
+      .populate('owner', 'username email avatar _id firstName lastName');
+  }
+  removeBoardFromWorkspace(workspace: string, _id: string) {
+    return this.workSpaceModel.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(workspace) },
+      { $pull: { boards: _id } },
+      { new: true },
+    );
+  }
   constructor(
     @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
   ) {}
@@ -77,21 +90,20 @@ export class WorkspaceService {
       {
         $lookup: {
           from: 'members',
-          localField: 'memberId',
-          foreignField: 'members',
-          as: 'members',
+          let: { workspaceMembers: '$members' },
           //Get member which match workspaceId
           pipeline: [
-            //Lookup the user using memberId
+            { $match: { $expr: { $in: ['$memberId', '$$workspaceMembers'] } } },
+            // Lookup the user using memberId
             {
               $lookup: {
                 from: 'users',
                 localField: 'memberId',
                 foreignField: '_id',
                 as: 'user',
-                //Pipeline for user
+                // Pipeline for user
                 pipeline: [
-                  //Get specific field of user
+                  // Get specific field of user
                   {
                     $project: {
                       username: 1,
@@ -102,8 +114,8 @@ export class WorkspaceService {
                 ],
               },
             },
-            { $unwind: '$user' },
-            //Get the specific field of members
+            { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+            // Get the specific field of members
             {
               $project: {
                 user: 1,
@@ -112,6 +124,7 @@ export class WorkspaceService {
               },
             },
           ],
+          as: 'members',
         },
       },
     ]);

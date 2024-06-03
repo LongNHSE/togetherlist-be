@@ -66,7 +66,6 @@ export class BoardService {
           workspace: new mongoose.Types.ObjectId(workspaceId),
         },
       },
-
       {
         $lookup: {
           from: 'sections',
@@ -234,36 +233,36 @@ export class BoardService {
           as: 'statusDetails',
         },
       },
-      {
-        $unwind: '$statusDetails',
-      },
-      {
-        $addFields: {
-          statuses: {
-            $map: {
-              input: '$statuses',
-              as: 'status',
-              in: {
-                label: {
-                  $arrayElemAt: [
-                    {
-                      $filter: {
-                        input: '$statusDetails.taskStatus',
-                        as: 'detail',
-                        cond: {
-                          $eq: ['$$detail._id', '$$status.label'],
-                        },
-                      },
-                    },
-                    0,
-                  ],
-                },
-                percentage: '$$status.percentage',
-              },
-            },
-          },
-        },
-      },
+      // {
+      //   $unwind: '$statusDetails',
+      // },
+      // {
+      //   $addFields: {
+      //     statuses: {
+      //       $map: {
+      //         input: '$statuses',
+      //         as: 'status',
+      //         in: {
+      //           label: {
+      //             $arrayElemAt: [
+      //               {
+      //                 $filter: {
+      //                   input: '$statusDetails.taskStatus',
+      //                   as: 'detail',
+      //                   cond: {
+      //                     $eq: ['$$detail._id', '$$status.label'],
+      //                   },
+      //                 },
+      //               },
+      //               0,
+      //             ],
+      //           },
+      //           percentage: '$$status.percentage',
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
       {
         $project: {
           taskStatus: 1,
@@ -283,8 +282,24 @@ export class BoardService {
     if (result.length > 0) {
       result.forEach((board) => {
         board.statuses = board.statuses.map((status: any) => {
-          const { name, color, _id } = status.label;
-          status = { label: name, color, _id, value: status.percentage };
+          if (status.label === null) {
+            status.label = null;
+            status.value = 0;
+            return status;
+          }
+          const statusDetail = board.taskStatus.find((detail: any) => {
+            return detail._id.toString() === status.label._id.toString();
+          });
+          if (statusDetail) {
+            const { name, color } = statusDetail;
+            status = {
+              _id: status.label,
+              name,
+              label: name,
+              color,
+              value: status.percentage,
+            };
+          }
           return status;
         });
       });

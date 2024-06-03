@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Board } from './schema/board.schema';
 import mongoose, { Model } from 'mongoose';
 import { Section } from '../section/schema/section.schema';
 import { Task } from '../task/schema/task.schema';
 import { UpdateBoardStatusDto } from './dto/update-board-status.dto';
+
+import { CreateBoardStatusDto } from './dto/create-board-status.dto';
 
 @Injectable()
 export class BoardService {
@@ -16,11 +17,22 @@ export class BoardService {
     @InjectModel(Task.name) private taskModel: Model<any>,
   ) {}
 
-  updateBoardStatus(id: string, updateBoardStatusDto: UpdateBoardStatusDto) {
+  generateColorHex() {
+    return `#${Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')}`;
+  }
+
+  async updateBoardStatus(
+    id: string,
+    statusId: string,
+    updateBoardStatusDto: UpdateBoardStatusDto,
+  ) {
+    console.log(updateBoardStatusDto);
     const result = this.boardModel.updateOne(
       {
         _id: id,
-        'taskStatus.index': updateBoardStatusDto.oldIndex,
+        'taskStatus._id': new mongoose.Types.ObjectId(statusId),
       },
       {
         $set: {
@@ -30,176 +42,22 @@ export class BoardService {
         },
       },
     );
-    this.boardModel.updateOne(
-      {
-        _id: id,
-        'taskStatus.index': updateBoardStatusDto.newIndex,
-      },
-      {
-        $set: {
-          'taskStatus.$.index': updateBoardStatusDto.oldIndex,
+    if (updateBoardStatusDto.newIndex) {
+      await this.boardModel.updateOne(
+        {
+          _id: id,
+          'taskStatus.index': updateBoardStatusDto.newIndex,
         },
-      },
-    );
+        {
+          $set: {
+            'taskStatus.$.index': updateBoardStatusDto.oldIndex,
+          },
+        },
+      );
+    }
     return result;
   }
-  //Test1
-  // async findBoardsByWorkspaceId(workspaceId: string) {
-  //   console.log(workspaceId);
-  //   return await this.boardModel.aggregate([
-  //     {
-  //       $match: {
-  //         workspace: new mongoose.Types.ObjectId(workspaceId),
-  //       },
-  //     },
-  //     {
-  //       $lookup: {
-  //         from: 'sections',
-  //         localField: 'sections',
-  //         foreignField: '_id',
-  //         as: 'sections',
-  //         pipeline: [
-  //           {
-  //             $lookup: {
-  //               from: 'tasks',
-  //               localField: '_id',
-  //               foreignField: 'section',
-  //               as: 'tasks',
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //     {
-  //       $unwind: {
-  //         path: '$sections',
-  //         preserveNullAndEmptyArrays: true,
-  //       },
-  //     },
-  //     {
-  //       $unwind: {
-  //         path: '$sections.tasks',
-  //         preserveNullAndEmptyArrays: true,
-  //       },
-  //     },
-  //     {
-  //       $group: {
-  //         _id: {
-  //           boardId: '$_id',
-  //           boardName: '$name',
-  //           createdAt: '$createdAt',
-  //           status: '$taskStatus',
-  //           taskStatus: {
-  //             $cond: {
-  //               if: {
-  //                 $gt: [
-  //                   {
-  //                     $type: '$sections.tasks',
-  //                   },
-  //                   'missing',
-  //                 ],
-  //               },
-  //               then: '$sections.tasks.status',
-  //               else: null,
-  //             },
-  //           },
-  //         },
-  //         taskCount: {
-  //           $sum: {
-  //             $cond: {
-  //               if: {
-  //                 $gt: [
-  //                   {
-  //                     $type: '$sections.tasks',
-  //                   },
-  //                   'missing',
-  //                 ],
-  //               },
-  //               then: 1,
-  //               else: 0,
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $group: {
-  //         _id: {
-  //           boardId: '$_id.boardId',
-  //           boardName: '$_id.boardName',
-  //           createdAt: '$_id.createdAt',
-  //           taskStatus: '$_id.status',
-  //         },
-  //         totalTask: {
-  //           $sum: '$taskCount',
-  //         },
-  //         statuses: {
-  //           $push: {
-  //             status: '$_id.taskStatus',
-  //             count: '$taskCount',
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $project: {
-  //         taskStatus: '$_id.taskStatus',
-  //         _id: '$_id.boardId',
-  //         name: '$_id.boardName',
-  //         createdAt: '$_id.createdAt',
-  //         totalTask: '$totalTask',
-  //         statuses: {
-  //           $map: {
-  //             input: '$statuses',
-  //             as: 'status',
-  //             in: {
-  //               label: '$$status.status',
-  //               value: {
-  //                 $cond: {
-  //                   if: {
-  //                     $gt: ['$$status.count', 0],
-  //                   },
-  //                   then: {
-  //                     $multiply: [
-  //                       {
-  //                         $divide: ['$$status.count', '$totalTask'],
-  //                       },
-  //                       100,
-  //                     ],
-  //                   },
-  //                   else: 0,
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $addFields: {
-  //         statuses: {
-  //           $cond: {
-  //             if: {
-  //               $eq: [
-  //                 {
-  //                   $size: '$statuses',
-  //                 },
-  //                 0,
-  //               ],
-  //             },
-  //             then: [],
-  //             else: '$statuses',
-  //           },
-  //         },
-  //       },
-  //     },
-  //     {
-  //       $sort: {
-  //         createdAt: 1, // Sort by createdAt in ascending order. Use -1 for descending order.
-  //       },
-  //     },
-  //   ]);
-  // }
+
   async findBoardsByWorkspaceId(workspaceId: string) {
     console.log(workspaceId);
     const result = await this.boardModel.aggregate([
@@ -482,8 +340,30 @@ export class BoardService {
     ]);
   }
 
-  update(id: number, updateBoardDto: UpdateBoardDto) {
-    return `This action updates a #${id} board`;
+  // update(id: number, updateBoardDto: UpdateBoardDto) {
+  //   return `This action updates a #${id} board`;
+  // }
+
+  async addNewStatus(id: string, status: CreateBoardStatusDto) {
+    const board = await this.boardModel.findById(id);
+
+    if (!board) {
+      return null;
+    }
+    const nextIndex =
+      board.taskStatus.reduce((max, status) => Math.max(max, status.index), 0) +
+      1;
+    status._id = new mongoose.Types.ObjectId();
+    status.index = nextIndex;
+    status.color = status.color || this.generateColorHex();
+    const result = await this.boardModel.findByIdAndUpdate(id, {
+      $push: {
+        taskStatus: status,
+      },
+    });
+    if (result) {
+      return status;
+    }
   }
 
   async remove(id: string) {

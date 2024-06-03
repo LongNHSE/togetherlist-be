@@ -17,6 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { SectionService } from '../section/section.service';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { WorkspaceService } from '../workspace/workspace.service';
+import { UpdateBoardStatusDto } from './dto/update-board-status.dto';
 
 @Controller('boards')
 export class BoardController {
@@ -92,6 +93,32 @@ export class BoardController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBoardDto: UpdateBoardDto) {
     return this.boardService.update(+id, updateBoardDto);
+  }
+
+  @Patch(':id/board-status')
+  async updateBoardStatus(
+    @Param('id') id: string,
+    @Body() updateBoardStatusDto: UpdateBoardStatusDto,
+  ) {
+    try {
+      //   {
+      //     "name": "Unassigned",
+      //     "color": "#b3b3a3",
+      //     "index": 1
+      // },
+      const result = await this.boardService.updateBoardStatus(
+        id,
+        updateBoardStatusDto,
+      );
+      if (result) {
+        return apiSuccess(200, result, 'Update board status successfully');
+      } else {
+        return apiFailed(400, {}, 'Update board status failed');
+      }
+    } catch (error) {
+      console.log(error);
+      return apiFailed(400, {}, 'Update board status failed');
+    }
   }
 
   @Delete(':id')

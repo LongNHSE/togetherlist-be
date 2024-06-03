@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Board } from 'src/modules/board/schema/board.schema';
-import { Section } from 'src/modules/section/schema/section.schema';
 import { User } from 'src/modules/user/schema/user.schema';
 
 export type TaskDocumen = Task & mongoose.Document;
@@ -35,8 +34,14 @@ export class Task {
   )
   schedule: { from: Date; to: Date; timezone: string };
 
-  @Prop({ required: true })
-  status: string;
+  // @Prop({ required: true })
+  // status: string;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Board.taskStatus',
+    required: true,
+  })
+  status: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
   index: number;

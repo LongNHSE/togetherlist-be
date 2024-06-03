@@ -27,28 +27,6 @@ export class TaskService {
     return `This action returns a #${id} task`;
   }
 
-  // async update(id: string, updateTaskDto: UpdateTaskDto) {
-  //   try {
-  //     // let task = await this.taskModel.findById(id);
-  //     // if (!task) return null;
-  //     if (task?.section !== updateTaskDto.section && updateTaskDto.section) {
-  //       await this.sectionModel.updateOne(
-  //         { _id: updateTaskDto?.section },
-  //         { $pull: { tasks: id } },
-  //       );
-  //       await this.sectionModel.updateOne(
-  //         { _id: updateTaskDto.section },
-  //         { $push: { tasks: id } },
-  //       );
-  //       // task.section = updateTaskDto.section || '';
-  //     }
-
-  //     return await task.save();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   async update(id: string, updateTaskDto: UpdateTaskDto) {
     try {
       if (updateTaskDto.section && updateTaskDto.section) {

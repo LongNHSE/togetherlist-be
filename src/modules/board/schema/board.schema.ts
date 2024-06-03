@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Section } from 'src/modules/section/schema/section.schema';
 import { Task } from 'src/modules/task/schema/task.schema';
 import { WorkSpace } from 'src/modules/workspace/schema/workspace.schema';
+import { Status } from './status.schema';
 
 @Schema({
   timestamps: true,
@@ -34,10 +35,15 @@ export class Board {
 
   @Prop({
     required: false,
-    type: Array,
-    default: ['To Do', 'In Progress', 'Done', 'Unassigned'],
+    type: [Status],
+    default: [
+      { name: 'Unassigned', color: '#b3b3a3', index: 1 },
+      { name: 'To Do', color: '#FFA500', index: 2 },
+      { name: 'In Progress', color: '#FFFF00', index: 3 },
+      { name: 'Done', color: '#84ea69', index: 4 },
+    ],
   })
-  taskStatus: string[];
+  taskStatus: [Status];
 
   @Prop({ required: false, default: 0 })
   totalTask: number;

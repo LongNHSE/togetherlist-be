@@ -37,10 +37,30 @@ export class Board {
     required: false,
     type: [Status],
     default: [
-      { name: 'Unassigned', color: '#b3b3a3', index: 1 },
-      { name: 'To Do', color: '#FFA500', index: 2 },
-      { name: 'In Progress', color: '#FFFF00', index: 3 },
-      { name: 'Done', color: '#84ea69', index: 4 },
+      {
+        name: 'Unassigned',
+        color: '#b3b3a3',
+        index: 1,
+        _id: new mongoose.Types.ObjectId(),
+      },
+      {
+        name: 'To Do',
+        color: '#FFA500',
+        index: 2,
+        _id: new mongoose.Types.ObjectId(),
+      },
+      {
+        name: 'In Progress',
+        color: '#FFFF00',
+        index: 3,
+        _id: new mongoose.Types.ObjectId(),
+      },
+      {
+        name: 'Done',
+        color: '#84ea69',
+        index: 4,
+        _id: new mongoose.Types.ObjectId(),
+      },
     ],
   })
   taskStatus: [Status];

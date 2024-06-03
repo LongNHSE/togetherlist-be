@@ -19,6 +19,7 @@ export class IsWorkspaceExistConstraint
     @InjectModel(WorkSpace.name) private workspaceModel: Model<WorkSpace>,
   ) {}
   async validate(workspaceId: string) {
+    console.log(workspaceId);
     if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       return false;
     }
@@ -29,7 +30,7 @@ export class IsWorkspaceExistConstraint
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     validationArguments?: ValidationArguments | undefined,
   ): string {
-    throw new Error('Method not implemented.');
+    return 'Workspace does not exist';
   }
 }
 

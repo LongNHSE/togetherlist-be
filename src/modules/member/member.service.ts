@@ -35,8 +35,31 @@ export class MemberService {
     );
   }
 
-  findAll() {
-    return `This action returns all member`;
+  findAll(_id: string) {
+    console.log(_id);
+    return this.memberModel.aggregate([
+      { $match: { workspaceId: new mongoose.Types.ObjectId(_id) } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'memberId',
+          foreignField: '_id',
+          as: 'member',
+          pipeline: [
+            {
+              $project: {
+                username: 1,
+                email: 1,
+                avatar: 1,
+                firstName: 1,
+                lastName: 1,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: '$member' },
+    ]);
   }
 
   findOne(id: string) {

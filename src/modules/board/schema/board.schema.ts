@@ -16,7 +16,7 @@ export class Board {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'WorkSpace',
   })
-  workspace: WorkSpace;
+  workspace: WorkSpace | string;
 
   @Prop({
     required: false,

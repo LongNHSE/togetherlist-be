@@ -23,10 +23,10 @@ export class MemberController {
     private readonly workSpaceService: WorkspaceService,
   ) {}
 
-  @Post()
-  create(@Body() createMemberDto: CreateMemberDto[]) {
-    return '';
-  }
+  // @Post()
+  // create(@Body() createMemberDto: CreateMemberDto[]) {
+  //   return '';
+  // }
 
   @Post(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -68,8 +68,9 @@ export class MemberController {
     }
   }
   @Get()
-  findAll() {
-    return this.memberService.findAll();
+  async findAll(@Body() workspaceId: any) {
+    console.log(workspaceId);
+    return await this.memberService.findAll(workspaceId.workspaceId);
   }
 
   @Get(':id')

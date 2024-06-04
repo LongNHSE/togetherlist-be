@@ -8,10 +8,12 @@ import { Task } from '../task/schema/task.schema';
 import { UpdateBoardStatusDto } from './dto/update-board-status.dto';
 
 import { CreateBoardStatusDto } from './dto/create-board-status.dto';
+import { WorkSpace } from '../workspace/schema/workspace.schema';
 
 @Injectable()
 export class BoardService {
   constructor(
+    // @InjectModel(WorkSpace.name) private workspaceModel: Model<WorkSpace>,
     @InjectModel(Board.name) private boardModel: Model<Board>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Task.name) private taskModel: Model<any>,
@@ -347,6 +349,28 @@ export class BoardService {
                 localField: '_id',
                 foreignField: 'section',
                 as: 'tasks',
+                pipeline: [
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'assignee',
+                      foreignField: '_id',
+                      as: 'assignee',
+                      pipeline: [
+                        {
+                          $project: {
+                            username: 1,
+                            email: 1,
+                            avatar: 1,
+                            firstName: 1,
+                            lastName: 1,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                  { $unwind: '$assignee' },
+                ],
               },
             },
           ],
@@ -387,6 +411,16 @@ export class BoardService {
       if (result) {
         await this.sectionModel.deleteMany({ board: id });
         await this.taskModel.deleteMany({ board: id });
+        // await this.workspaceModel.updateOne(
+        //   {
+        //     boards: new mongoose.Types.ObjectId(id),
+        //   },
+        //   {
+        //     $pull: {
+        //       boards: new mongoose.Types.ObjectId(id),
+        //     },
+        //   },
+        // );
         return result;
       } else {
         return false;

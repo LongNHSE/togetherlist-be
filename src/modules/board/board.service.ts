@@ -235,36 +235,6 @@ export class BoardService {
           as: 'statusDetails',
         },
       },
-      // {
-      //   $unwind: '$statusDetails',
-      // },
-      // {
-      //   $addFields: {
-      //     statuses: {
-      //       $map: {
-      //         input: '$statuses',
-      //         as: 'status',
-      //         in: {
-      //           label: {
-      //             $arrayElemAt: [
-      //               {
-      //                 $filter: {
-      //                   input: '$statusDetails.taskStatus',
-      //                   as: 'detail',
-      //                   cond: {
-      //                     $eq: ['$$detail._id', '$$status.label'],
-      //                   },
-      //                 },
-      //               },
-      //               0,
-      //             ],
-      //           },
-      //           percentage: '$$status.percentage',
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
       {
         $project: {
           taskStatus: 1,
@@ -353,10 +323,15 @@ export class BoardService {
                   {
                     $lookup: {
                       from: 'users',
-                      localField: 'assignee',
-                      foreignField: '_id',
-                      as: 'assignee',
+                      let: { assigneeId: '$assignee' },
                       pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $eq: ['$_id', '$$assigneeId'],
+                            },
+                          },
+                        },
                         {
                           $project: {
                             username: 1,
@@ -367,9 +342,20 @@ export class BoardService {
                           },
                         },
                       ],
+                      as: 'assignee',
                     },
                   },
-                  { $unwind: '$assignee' },
+                  {
+                    $addFields: {
+                      assignee: {
+                        $cond: [
+                          { $eq: ['$assignee', []] }, // condition
+                          null, // value if true
+                          { $arrayElemAt: ['$assignee', 0] }, // value if false
+                        ],
+                      },
+                    },
+                  },
                 ],
               },
             },

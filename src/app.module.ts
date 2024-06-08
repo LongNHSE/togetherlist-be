@@ -15,11 +15,19 @@ import { TaskModule } from './modules/task/task.module';
 import { BoardModule } from './modules/board/board.module';
 import { SectionModule } from './modules/section/section.module';
 import { MemberModule } from './modules/member/member.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('CONNECTION_STRING'),
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
     MailModule,
@@ -30,18 +38,12 @@ import { MemberModule } from './modules/member/member.module';
     InvoiceModule,
     TransactionModule,
     SubscriptionPlanModule,
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('CONNECTION_STRING'),
-      }),
-      inject: [ConfigService],
-    }),
     WorkspaceModule,
     TaskModule,
     BoardModule,
     SectionModule,
     MemberModule,
+    PaymentModule
   ],
   providers: [],
 })

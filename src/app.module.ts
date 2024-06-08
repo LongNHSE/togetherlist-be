@@ -16,6 +16,7 @@ import { BoardModule } from './modules/board/board.module';
 import { SectionModule } from './modules/section/section.module';
 import { MemberModule } from './modules/member/member.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { PaymentModule } from './modules/payment/payment.module';
     BoardModule,
     SectionModule,
     MemberModule,
-    PaymentModule
+    PaymentModule,
+    GatewayModule,
   ],
   providers: [],
 })

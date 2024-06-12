@@ -16,6 +16,9 @@ import { BoardModule } from './modules/board/board.module';
 import { SectionModule } from './modules/section/section.module';
 import { MemberModule } from './modules/member/member.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { MessagesModule } from './modules/messages/messages.module';
+import { RoomModule } from './modules/room/room.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ReportTaskModule } from './report-task/report-task.module';
 
@@ -51,6 +54,9 @@ import { ReportTaskModule } from './report-task/report-task.module';
     BoardModule,
     SectionModule,
     MemberModule,
+    ChatModule,
+    MessagesModule,
+    RoomModule,
     PaymentModule,
     ReportTaskModule,
   ],

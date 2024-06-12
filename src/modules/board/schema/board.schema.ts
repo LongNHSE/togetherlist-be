@@ -25,13 +25,6 @@ export class Board {
   })
   sections: Section[];
 
-  // @Prop({
-  //   required: false,
-  //   type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
-  //   ref: 'Task',
-  // })
-  // tasks: Task[];
-
   @Prop({
     required: false,
     type: [Status],

@@ -21,6 +21,9 @@ export class Room {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
   members: User[];
+
+  @Prop({ required: true, enum: ['single', 'group'] })
+  type: string;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

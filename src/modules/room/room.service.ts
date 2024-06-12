@@ -13,7 +13,6 @@ export class RoomService {
     return createdRoom.save();
   }
 
-  // Method to get all rooms
   async getAllRooms(): Promise<Room[]> {
     return this.roomModel.find().exec();
   }

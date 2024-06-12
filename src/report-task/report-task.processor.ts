@@ -14,3 +14,16 @@ export class ReportTaskProcessor extends WorkerHost {
     this.reportTaskService.sendNotification(reportTask);
   }
 }
+
+@Processor('assignee-task-queue')
+export class AssigneeTaskProcessor extends WorkerHost {
+  constructor(private readonly reportTaskService: ReportTaskService) {
+    super();
+  }
+
+  async process(job: Job<any, any, string>): Promise<any> {
+    console.log('AssigneeTaskProcessor');
+    const { reportTask } = job.data;
+    this.reportTaskService.sendAssigneeNotification(reportTask);
+  }
+}

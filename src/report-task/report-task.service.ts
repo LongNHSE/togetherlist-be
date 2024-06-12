@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateReportTaskDto } from './dto/create-report-task.dto';
 import { UpdateReportTaskDto } from './dto/update-report-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { MemberService } from 'src/modules/member/member.service';
 export class ReportTaskService {
   private changeStream: ChangeStream<ChangeStreamDocument<ReportTask>>;
   private jobMap = new Map<string, string>(); // Map to store task ID to job ID
+  private jobAssigneeMap = new Map<string, string>(); // Map to store task ID to job ID
 
   async onModuleInit() {
     this.changeStream = this.reportTaskModel.watch([], {
@@ -23,7 +24,14 @@ export class ReportTaskService {
     this.changeStream.on('change', async (change: any) => {
       if (change.documentKey._id) {
         const reportTask = await this.findById(change.documentKey._id);
-        if (reportTask) {
+        if (change.updateDescription.updatedFields.assignee) {
+          console.log('This is assignee notification');
+          this.scheduleAssigneeNotification(reportTask[0]);
+        }
+        if (
+          change.updateDescription.updatedFields.newStatus &&
+          change.updateDescription.updatedFields.oldStatus
+        ) {
           this.scheduleNotification(reportTask[0]);
         }
       }
@@ -35,12 +43,14 @@ export class ReportTaskService {
     private mailService: MailService,
     private memberService: MemberService,
     @InjectQueue('report-task-queue') private reportTaskQueue: Queue,
+    @InjectQueue('assignee-task-queue') private assigneeTaskQueue: Queue,
   ) {}
 
+  //This use when change status of task
   async scheduleNotification(reportTask: any) {
     // Cancel any existing job for this task
-    if (this.jobMap.has(reportTask._id)) {
-      const jobId = this.jobMap.get(reportTask._id);
+    if (this.jobMap.has(reportTask?._id)) {
+      const jobId = this.jobMap.get(reportTask?._id);
       if (jobId) {
         const existingJob = await this.reportTaskQueue.getJob(jobId);
         if (existingJob) {
@@ -57,6 +67,29 @@ export class ReportTaskService {
     // Store job ID in map
     if (job.id) {
       this.jobMap.set(reportTask, job.id);
+    }
+  }
+
+  async scheduleAssigneeNotification(reportTask: any) {
+    // Cancel any existing job for this task
+    if (this.jobAssigneeMap.has(reportTask?._id)) {
+      const jobId = this.jobAssigneeMap.get(reportTask?._id);
+      if (jobId) {
+        const existingJob = await this.assigneeTaskQueue.getJob(jobId);
+        if (existingJob) {
+          await existingJob.remove();
+        }
+      }
+    }
+    // Schedule new notification job
+    const job = await this.assigneeTaskQueue.add(
+      'assignee-task-queue',
+      { reportTask },
+      { delay: 1 * 2 * 1000 }, // 3 minutes delay
+    );
+    // Store job ID in map
+    if (job.id) {
+      this.jobAssigneeMap.set(reportTask, job.id);
     }
   }
 
@@ -149,7 +182,10 @@ export class ReportTaskService {
         },
       },
       {
-        $unwind: '$assignee',
+        $unwind: {
+          path: '$assignee',
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $lookup: {
@@ -184,5 +220,11 @@ export class ReportTaskService {
   async sendNotification(reportTask: any) {
     const member = await this.memberService.findAll(reportTask.workspace._id);
     await this.mailService.sendReportTask(reportTask, member);
+  }
+
+  async sendAssigneeNotification(reportTask: any) {
+    console.log('This is assignee notification');
+    const member = await this.memberService.findAll(reportTask.workspace._id);
+    await this.mailService.sendReportAssigneeTask(reportTask, member);
   }
 }

@@ -48,7 +48,6 @@ export class MemberService {
   }
 
   findAll(_id: string) {
-    console.log(_id);
     return this.memberModel.aggregate([
       { $match: { workspaceId: new mongoose.Types.ObjectId(_id) } },
       {

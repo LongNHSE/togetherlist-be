@@ -40,7 +40,6 @@ export class TaskService implements OnModuleInit {
         ) {
           const task: Task = change.fullDocument;
           const documentBeforeChange: Task = change.fullDocumentBeforeChange;
-          console.log(change.updateDescription.updatedFields);
 
           //report task
 

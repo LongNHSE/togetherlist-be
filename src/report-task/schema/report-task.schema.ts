@@ -46,7 +46,7 @@ export class ReportTask {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false,
   })
   assignee: User | string;
 

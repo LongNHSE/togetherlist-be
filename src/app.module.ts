@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailModule } from './modules/mail/mail.module';
 import { OtpModule } from './modules/otp/otp.module';
 import { ImageModule } from './modules/image/image.module';
-import { FirebaseModule } from './modules/firebase/firebase.module';
+import { FirebaseModule } from './firebase/firebase.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { SubscriptionPlanModule } from './modules/subscription-plan/subscription-plan.module';
@@ -16,11 +16,19 @@ import { BoardModule } from './modules/board/board.module';
 import { SectionModule } from './modules/section/section.module';
 import { MemberModule } from './modules/member/member.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { BullModule } from '@nestjs/bullmq';
+import { ReportTaskModule } from './report-task/report-task.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -43,7 +51,8 @@ import { PaymentModule } from './modules/payment/payment.module';
     BoardModule,
     SectionModule,
     MemberModule,
-    PaymentModule
+    PaymentModule,
+    ReportTaskModule,
   ],
   providers: [],
 })

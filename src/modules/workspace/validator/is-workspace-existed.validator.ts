@@ -19,7 +19,6 @@ export class IsWorkspaceExistConstraint
     @InjectModel(WorkSpace.name) private workspaceModel: Model<WorkSpace>,
   ) {}
   async validate(workspaceId: string) {
-    console.log(workspaceId);
     if (!mongoose.Types.ObjectId.isValid(workspaceId)) {
       return false;
     }

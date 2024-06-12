@@ -18,12 +18,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/common/decorator/user.decorator';
 import { MemberService } from '../member/member.service';
 import { CreateMemberDto } from '../member/dto/create-member.dto';
+import { UserService } from '../user/user.service';
 
 @Controller('workspaces')
 export class WorkspaceController {
   constructor(
     private readonly workspaceService: WorkspaceService,
     private readonly memberService: MemberService,
+    private readonly userService: UserService,
   ) {}
 
   @Post()
@@ -41,6 +43,13 @@ export class WorkspaceController {
     try {
       const result = await this.workspaceService.create(createWorkspaceDto);
       if (result) {
+        const member: any = {
+          memberId: user.userId,
+          role: 'owner',
+          status: 'accepted',
+          workspaceId: result._id,
+        };
+        await this.memberService.createOwner(member);
         return apiSuccess(200, result, 'Create workspace successfully');
       } else {
         return apiFailed(400, 'Create workspace failed');
@@ -158,6 +167,7 @@ export class WorkspaceController {
       if (!isOwner) {
         return apiFailed(400, `You don't have permission`);
       }
+      console.log(members);
       const result = await this.memberService.create(id, members.members);
       if (result) {
         return apiSuccess(200, result, 'Add member successfully');
@@ -168,6 +178,51 @@ export class WorkspaceController {
       return error;
     }
   }
+
+  @Post(':id/members/email')
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  )
+  async inviteMemberByEmail(
+    @Param('id') id: string,
+    @Body() members: any,
+    @GetUser() user: any,
+  ) {
+    try {
+      const isExist = await this.workspaceService.isExist(id);
+      if (!isExist) {
+        return apiFailed(400, 'Workspace not found');
+      }
+      const isOwner = await this.workspaceService.isOwner(id, user.userId);
+      if (!isOwner) {
+        return apiFailed(400, `You don't have permission`);
+      }
+
+      const memberResult = await this.userService.checkExistedEmail(
+        members.email,
+      );
+      if (!memberResult) {
+        return apiFailed(400, 'Email not found');
+      }
+
+      const result = await this.memberService.createWithEmail(
+        id,
+        memberResult._id,
+      );
+      if (result) {
+        return apiSuccess(200, result, 'Add member successfully');
+      } else {
+        return apiFailed(400, 'Add member failed');
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.workspaceService.findOne(id);

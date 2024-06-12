@@ -10,7 +10,7 @@ export type TaskDocumen = Task & mongoose.Document;
 })
 export class Task {
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Board' })
-  board: Board;
+  board: Board | string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +20,7 @@ export class Task {
   section: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  assignee: User;
+  assignee: User | string;
 
   @Prop({ required: true })
   name: string;
@@ -41,10 +41,13 @@ export class Task {
     ref: 'Board.taskStatus',
     required: true,
   })
-  status: mongoose.Schema.Types.ObjectId;
+  status: mongoose.Schema.Types.ObjectId | string;
 
   @Prop({ required: true })
   index: number;
+
+  @Prop({ required: false, type: String })
+  description: string;
 
   @Prop({ required: true, type: Boolean, default: false })
   isPriority: boolean;

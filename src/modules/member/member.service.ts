@@ -21,6 +21,18 @@ export class MemberService {
     return Promise.all(memberPromises);
   }
 
+  createWithEmail(workspaceId: string, memberId: string) {
+    return this.memberModel.create({
+      workspaceId,
+      memberId,
+      status: 'accepted',
+    });
+  }
+
+  createOwner(member: any) {
+    return this.memberModel.create(member);
+  }
+
   acceptInvite(_id: string, userId: any, status: boolean) {
     let statusString;
     if (status) {

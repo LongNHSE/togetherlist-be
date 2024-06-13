@@ -8,7 +8,7 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import * as bcrypt from 'bcrypt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { OTP } from '../otp/schema/otp.schema';
-import { Model, ObjectId } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
@@ -19,7 +19,7 @@ export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(OTP.name) private otpModel: Model<OTP>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   updateImage(id: string, urlResult: string) {
@@ -101,5 +101,10 @@ export class UserService {
     }
     const hash = await bcrypt.hash(newPassword, 10);
     await this.userModel.findOneAndUpdate({ email: mail }, { password: hash });
+  }
+
+  async exists(userId: mongoose.Types.ObjectId): Promise<boolean> {
+    const user = await this.userModel.findById(userId).exec();
+    return !!user;
   }
 }

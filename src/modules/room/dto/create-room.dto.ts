@@ -1,36 +1,22 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsOptional,
-  MaxLength,
-  MinLength,
+  ValidateIf,
 } from 'class-validator';
-import { ObjectId, Types } from 'mongoose';
-import { User } from 'src/modules/user/schema/user.schema';
+import { RoomType } from '../enums/room-type-enum';
 
 export class CreateRoomDto {
   @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(100)
-  readonly title: string;
+  @ValidateIf((o) => o.type != RoomType.PERSONAL)
+  name: string;
 
-  @IsNotEmpty()
-  @MinLength(1)
-  @MaxLength(100)
-  readonly description: string;
-
-  @IsNotEmpty()
-  readonly owner: Types.ObjectId | string;
-
-  @IsOptional()
-  readonly participant?: Types.ObjectId;
-
-  @IsOptional()
   @IsArray()
-  readonly members?: Types.ObjectId[];
+  @ArrayNotEmpty()
+  members: string[];
 
-  @IsOptional()
-  @IsEnum(['single', 'group'])
-  readonly type: string;
+  @IsEnum(RoomType)
+  @ValidateIf((o) => o.type)
+  type: RoomType;
 }

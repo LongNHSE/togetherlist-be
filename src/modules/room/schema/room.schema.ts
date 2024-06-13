@@ -1,29 +1,51 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { Message } from 'src/modules/messages/schema/message.schema';
 import { User } from 'src/modules/user/schema/user.schema';
+import { RoomType } from '../enums/room-type-enum';
 
-export type RoomDocument = Room & Document;
-
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  versionKey: false,
+  toJSON: {
+    transform(_, ret, __) {
+      return new RoomDocument(ret);
+    },
+  },
+})
 export class Room {
-  @Prop({ required: true })
-  title: string;
+  @Prop()
+  name: string;
 
-  @Prop({ required: true })
-  description: string;
+  @Prop({ enum: RoomType, default: RoomType.PERSONAL })
+  type: RoomType;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }] })
-  messages: Message[];
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  owner: User;
-
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
+    autopopulate: true,
+  })
   members: User[];
-
-  @Prop({ required: true, enum: ['single', 'group'] })
-  type: string;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);
+
+export class RoomDocument {
+  _id: Types.ObjectId;
+  name: string;
+  type: RoomType;
+  members: User[];
+  constructor(props: Partial<RoomDocument>) {
+    this._id = props._id!;
+    this.members = props.members!;
+    this.name = props.name!;
+    this.type = props.type!;
+
+    if (this.type == RoomType.PERSONAL) {
+      this.name =
+        this.members.find(
+          (member: any) => member._id?.toString() !== this._id?.toString(),
+        )?.username ?? '';
+    }
+  }
+}

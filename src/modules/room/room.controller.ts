@@ -1,23 +1,36 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { RoomService } from './room.service';
-import { Room } from './schema/room.schema';
+import { ChatService } from '../chat/chat.service';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { UserService } from '../user/user.service';
+import { GetChatDto } from '../chat/dto/get-chat.dto';
 
 @Controller('room')
 export class RoomController {
   constructor(
     private readonly roomService: RoomService,
-    private readonly UserService: UserService,
+    private readonly chatService: ChatService,
   ) {}
 
   @Post()
-  async createRoom(@Body() createRoomDto: CreateRoomDto): Promise<Room> {
-    return this.roomService.createRoom(createRoomDto);
+  create(@Request() req: any, @Body() createRoomDto: CreateRoomDto) {
+    return this.roomService.create(req.user._id.toString(), createRoomDto);
   }
 
   @Get()
-  async getAllRooms(): Promise<Room[]> {
-    return this.roomService.getAllRooms();
+  getByRequest(@Request() req: any) {
+    return this.roomService.getByRequest(req.user._id.toString());
+  }
+
+  @Get(':id/chats')
+  getChat(@Param('id') id: any, @Query() dto: GetChatDto) {
+    return this.chatService.findAll(id, new GetChatDto(dto));
   }
 }

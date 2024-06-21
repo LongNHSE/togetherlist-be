@@ -9,7 +9,7 @@ import { Board } from '../board/schema/board.schema';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { ReportTask } from 'src/report-task/schema/report-task.schema';
+import { ReportTask } from 'src/modules/report-task/schema/report-task.schema';
 
 @Injectable()
 export class TaskService implements OnModuleInit {

@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { MailService } from 'src/modules/mail/mail.service';
 import { MemberService } from 'src/modules/member/member.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class ReportTaskService {
@@ -24,13 +25,13 @@ export class ReportTaskService {
     this.changeStream.on('change', async (change: any) => {
       if (change.documentKey._id) {
         const reportTask = await this.findById(change.documentKey._id);
-        if (change.updateDescription.updatedFields.assignee) {
+        if (change?.updateDescription?.updatedFields.assignee) {
           console.log('This is assignee notification');
           this.scheduleAssigneeNotification(reportTask[0]);
         }
         if (
-          change.updateDescription.updatedFields.newStatus &&
-          change.updateDescription.updatedFields.oldStatus
+          change?.updateDescription?.updatedFields.newStatus &&
+          change?.updateDescription?.updatedFields.oldStatus
         ) {
           this.scheduleNotification(reportTask[0]);
         }
@@ -42,6 +43,7 @@ export class ReportTaskService {
     @InjectModel(ReportTask.name) private reportTaskModel: Model<ReportTask>,
     private mailService: MailService,
     private memberService: MemberService,
+    private readonly notificationService: NotificationService,
     @InjectQueue('report-task-queue') private reportTaskQueue: Queue,
     @InjectQueue('assignee-task-queue') private assigneeTaskQueue: Queue,
   ) {}
@@ -220,6 +222,7 @@ export class ReportTaskService {
   async sendNotification(reportTask: any) {
     const member = await this.memberService.findAll(reportTask.workspace._id);
     await this.mailService.sendReportTask(reportTask, member);
+    await this.notificationService.createNotificationWorker(reportTask, member);
   }
 
   async sendAssigneeNotification(reportTask: any) {

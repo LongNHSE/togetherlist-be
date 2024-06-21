@@ -6,10 +6,7 @@ import { UserService } from '../user/user.service';
 
 @Controller('room')
 export class RoomController {
-  constructor(
-    private readonly roomService: RoomService,
-    private readonly UserService: UserService,
-  ) {}
+  constructor(private readonly roomService: RoomService) {}
 
   @Post()
   async createRoom(@Body() createRoomDto: CreateRoomDto): Promise<Room> {

@@ -11,9 +11,11 @@ import {
 import { MailService } from 'src/modules/mail/mail.service';
 import { MemberService } from 'src/modules/member/member.service';
 import { Member, MemberSchema } from 'src/modules/member/schema/member.schema';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
+    NotificationModule,
     MongooseModule.forFeature([
       { name: ReportTask.name, schema: reportTaskSchema },
     ]),
@@ -43,5 +45,6 @@ import { Member, MemberSchema } from 'src/modules/member/schema/member.schema';
     MemberService,
     AssigneeTaskProcessor,
   ],
+  exports: [ReportTaskService],
 })
 export class ReportTaskModule {}

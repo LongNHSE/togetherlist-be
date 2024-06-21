@@ -2,6 +2,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { ReportTaskService } from './report-task.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Processor('report-task-queue')
 export class ReportTaskProcessor extends WorkerHost {

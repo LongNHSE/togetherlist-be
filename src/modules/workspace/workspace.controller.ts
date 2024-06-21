@@ -159,6 +159,7 @@ export class WorkspaceController {
     @GetUser() user: any,
   ) {
     try {
+      console.log(members);
       const isExist = await this.workspaceService.isExist(id);
       if (!isExist) {
         return apiFailed(400, 'Workspace not found');
@@ -189,10 +190,11 @@ export class WorkspaceController {
   )
   async inviteMemberByEmail(
     @Param('id') id: string,
-    @Body() members: any,
+    @Body() email: any,
     @GetUser() user: any,
   ) {
     try {
+      email = email.email;
       const isExist = await this.workspaceService.isExist(id);
       if (!isExist) {
         return apiFailed(400, 'Workspace not found');
@@ -202,17 +204,16 @@ export class WorkspaceController {
         return apiFailed(400, `You don't have permission`);
       }
 
-      const memberResult = await this.userService.checkExistedEmail(
-        members.email,
-      );
+      const memberResult = await this.userService.checkExistedEmail(email);
       if (!memberResult) {
         return apiFailed(400, 'Email not found');
       }
-
+      console.log(memberResult);
       const result = await this.memberService.createWithEmail(
         id,
         memberResult._id,
       );
+      console.log(result);
       if (result) {
         return apiSuccess(200, result, 'Add member successfully');
       } else {

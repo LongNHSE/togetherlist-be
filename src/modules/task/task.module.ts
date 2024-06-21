@@ -12,7 +12,7 @@ import { TaskProcessor } from './task.processor';
 import {
   ReportTask,
   reportTaskSchema,
-} from 'src/report-task/schema/report-task.schema';
+} from 'src/modules/report-task/schema/report-task.schema';
 
 @Module({
   controllers: [TaskController],
@@ -20,6 +20,7 @@ import {
     MongooseModule.forFeature([{ name: 'Task', schema: taskSchema }]),
     BullModule.registerQueue({
       name: 'task-queue',
+
       connection: {
         host: 'localhost',
         port: 6379,

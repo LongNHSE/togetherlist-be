@@ -20,7 +20,10 @@ import { MessagesModule } from './modules/messages/messages.module';
 import { RoomModule } from './modules/room/room.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { BullModule } from '@nestjs/bullmq';
-import { ReportTaskModule } from './report-task/report-task.module';
+import { ReportTaskModule } from './modules/report-task/report-task.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { SessionModule } from './modules/session/session.module';
+import { TestSocketModule } from './modules/test-socket/test-socket.module';
 
 @Module({
   imports: [
@@ -47,6 +50,7 @@ import { ReportTaskModule } from './report-task/report-task.module';
     ImageModule,
     FirebaseModule,
     InvoiceModule,
+    NotificationModule,
     TransactionModule,
     SubscriptionPlanModule,
     WorkspaceModule,
@@ -59,6 +63,8 @@ import { ReportTaskModule } from './report-task/report-task.module';
     RoomModule,
     PaymentModule,
     ReportTaskModule,
+    SessionModule,
+    TestSocketModule,
   ],
   providers: [],
 })

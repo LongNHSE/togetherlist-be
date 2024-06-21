@@ -141,4 +141,10 @@ export class AuthController {
       throw new HttpException('Invalid OTP', HttpStatus.NOT_FOUND);
     }
   }
+
+  @Get('is-token-valid')
+  @UseGuards(AuthGuard('jwt'))
+  async isTokenValid() {
+    return apiSuccess(200, true, 'Token is valid');
+  }
 }

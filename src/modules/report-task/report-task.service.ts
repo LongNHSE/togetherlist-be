@@ -43,7 +43,7 @@ export class ReportTaskService {
     @InjectQueue('report-task-queue') private reportTaskQueue: Queue,
     @InjectQueue('assignee-task-queue') private assigneeTaskQueue: Queue,
   ) {}
-  DELAY = 1 * 2 * 1000; // 3 minutes delay
+  DELAY = 1 * 60 * 1000; // 1 minutes delay
   //This use when change status of task
   async scheduleNotification(reportTask: any) {
     // Cancel any existing job for this task

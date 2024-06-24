@@ -29,7 +29,6 @@ export class TaskController {
   @UsePipes(new ValidationPipe())
   async create(@Body() createTaskDto: CreateTaskDto) {
     try {
-      console.log(createTaskDto);
       const totalTask = await this.boardService.getTotalTask(
         createTaskDto.board,
       );
@@ -61,7 +60,6 @@ export class TaskController {
   async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
     try {
       const result = await this.taskService.update(id, updateTaskDto);
-      console.log(result);
       if (result) {
         return apiSuccess(200, result, 'Update task successfully');
       } else {

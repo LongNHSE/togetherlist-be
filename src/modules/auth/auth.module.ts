@@ -25,5 +25,6 @@ import { BlackListTokenModule } from '../black-list-token/black-list-token.modul
     MongooseModule.forFeature([{ name: User.name, schema: userSchema }]),
     MongooseModule.forFeature([{ name: OTP.name, schema: otpSchema }]),
   ],
+  exports: [AuthService],
 })
 export class AuthModule {}

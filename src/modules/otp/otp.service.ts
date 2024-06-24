@@ -16,7 +16,6 @@ export class OtpService {
   }
   async findOneByMailAndOTP(mail: string, OTP: string) {
     const result = await this.OtpModel.findOne({ mail: mail, OTP: OTP });
-    console.log(result);
     return result;
   }
   findAll() {

@@ -20,7 +20,7 @@ export class Member {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Workspace',
   })
-  workspaceId: string;
+  workspaceId: string | any;
   @Prop({ required: true, default: 'member' })
   role: string;
 

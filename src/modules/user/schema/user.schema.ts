@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { Room } from 'src/modules/room/schema/room.schema';
 
 export type UserDocument = User & Document;
 
@@ -40,6 +41,12 @@ export class User {
 
   @Prop()
   gender: string;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Room' }] })
+  rooms: Room[];
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Room' }] })
+  joinedRooms: Room[];
 
   @Prop()
   refreshToken: string;

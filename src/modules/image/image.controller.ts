@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FirebaseService } from '../firebase/firebase.service';
+import { FirebaseService } from '../../firebase/firebase.service';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { ApiResponse } from 'src/common/dto/response.dto';
 import { getNameImageFromUrl } from 'src/utils';
@@ -45,7 +45,6 @@ export class ImageController {
     @Param('imageName') imageName: string,
     @Res() res: any,
   ): Promise<any> {
-    console.log('Hello');
     try {
       const bucket = this.firebaseService.getFirestoreInstance().bucket();
       const file = bucket.file(imageName);

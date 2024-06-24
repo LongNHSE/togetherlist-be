@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { apiFailed } from 'src/common/api-response';
 import { BlackListTokenService } from '../black-list-token/black-list-token.service';
+import passport from 'passport';
 @Injectable({})
 export class AuthService {
   constructor(
@@ -130,8 +131,16 @@ export class AuthService {
   }
 
   async decodeToken(token: string) {
-    const decodedToken = await this.jwt.verifyAsync(token);
-    return decodedToken;
+    try {
+      const secret = this.config.get('JWT_SECRET');
+      const decodedToken = await this.jwt.verifyAsync(token, {
+        secret: secret,
+        algorithms: ['HS256'],
+      });
+      return decodedToken;
+    } catch (e) {
+      throw new HttpException('Token is invalid', 400);
+    }
   }
 
   async verifyAdminToken(token: string): Promise<boolean> {
@@ -165,18 +174,19 @@ export class AuthService {
     return false;
   }
 
-  async verifyToken(token: string): Promise<boolean> {
-    if (!token) {
-      throw new HttpException('Token is required', 400);
-    }
-    const decodedToken = await this.decodeToken(token);
-    if (decodedToken.userId && decodedToken.exp < Date.now()) {
-      const account = await this.userModel.findById(decodedToken.userId);
-      if (account?._id === decodedToken.userId) {
-        return true;
+  async verifyToken(token: string): Promise<string | null> {
+    try {
+      if (!token) {
+        throw new HttpException('Token is required', 400);
       }
+      const decodedToken = await this.decodeToken(token);
+      if (decodedToken.userId && decodedToken.exp < Date.now()) {
+        return decodedToken.userId;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
-    return false;
   }
+  // Path: src/auth/dto/auth.dto.ts
 }
-// Path: src/auth/dto/auth.dto.ts

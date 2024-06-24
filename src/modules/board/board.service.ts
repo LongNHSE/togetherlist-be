@@ -30,7 +30,6 @@ export class BoardService {
     statusId: string,
     updateBoardStatusDto: UpdateBoardStatusDto,
   ) {
-    console.log(updateBoardStatusDto);
     const result = this.boardModel.updateOne(
       {
         _id: id,
@@ -61,7 +60,6 @@ export class BoardService {
   }
 
   async findBoardsByWorkspaceId(workspaceId: string) {
-    console.log(workspaceId);
     const result = await this.boardModel.aggregate([
       {
         $match: {

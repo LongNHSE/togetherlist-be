@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   Res,
+  Headers,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDTO, LoginDTO } from './dto';
@@ -19,7 +20,9 @@ import { CreateOtpDto } from '../otp/dto/create-otp.dto';
 import { UserService } from '../user/user.service';
 import { OtpService } from '../otp/otp.service';
 import { Response } from 'express';
-
+import MongooseClassSerializerInterceptor from 'src/interceptors/mongoose-class-serializer.interceptor';
+import { User } from '../user/schema/user.schema';
+import { apiSuccess, apiFailed } from 'src/common/api-response';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -38,24 +41,41 @@ export class AuthController {
   @Post('signup')
   register(@Body() body: AuthDTO) {
     console.log(body);
-
     return this.authService.register(body);
   }
   @Get('logout')
   @UseGuards(AuthGuard('jwt'))
-  async logout(@GetUser() user: any) {
-    console.log(user);
-    if (user.userId) {
-      return this.authService.logout(user.userId);
-    } else {
-      throw new BadRequestException('Invalid user ID');
+  async logout(
+    @GetUser() user: any,
+    @Req() request: Request,
+    @Headers('authorization') jwt: string,
+  ) {
+    try {
+      if (user.userId) {
+        console.log(jwt);
+        if (!jwt) {
+          return apiFailed(400, {}, 'Logout failed');
+        }
+        const result = await this.authService.logout(
+          user.userId,
+          jwt.replace('Bearer ', ''),
+        );
+        if (result) {
+          return apiSuccess(200, {}, 'Logout successfully');
+        } else {
+          return apiFailed(400, {}, 'Logout failed');
+        }
+      } else {
+        throw new BadRequestException('Invalid user ID');
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
   async refresh(@Req() req: any) {
-    console.log(req.user);
     const userId = req.user['userId'];
     const refreshToken = req.user['refreshToken'];
     const accessToken = await this.authService.refreshTokens(
@@ -120,5 +140,11 @@ export class AuthController {
     } else {
       throw new HttpException('Invalid OTP', HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Get('is-token-valid')
+  @UseGuards(AuthGuard('jwt'))
+  async isTokenValid() {
+    return apiSuccess(200, true, 'Token is valid');
   }
 }

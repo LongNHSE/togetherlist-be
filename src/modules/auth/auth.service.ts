@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
 import { AuthDTO, LoginDTO } from './dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,12 +8,16 @@ import { MongoServerError } from 'mongodb';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import { apiFailed } from 'src/common/api-response';
+import { BlackListTokenService } from '../black-list-token/black-list-token.service';
+import passport from 'passport';
 @Injectable({})
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwt: JwtService,
     private config: ConfigService,
+    private blackListTokenService: BlackListTokenService,
   ) {}
 
   async login(LoginDTO: LoginDTO, response: Response) {
@@ -21,11 +25,11 @@ export class AuthService {
       username: LoginDTO.username,
     });
     if (!user) {
-      throw new ForbiddenException('User not found');
+      return apiFailed(404, {}, 'User not found');
     }
     const match = await bcrypt.compare(LoginDTO.password, user.password);
     if (!match) {
-      throw new ForbiddenException('Invalid password');
+      return apiFailed(404, {}, 'Password is incorrect');
     }
     const token = await this.signToken(user._id);
     const refreshToken = await this.updateRefreshToken(user._id);
@@ -84,10 +88,12 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string) {
+  async logout(userId: string, token: string): Promise<boolean> {
     try {
+      console.log(token);
       await this.userModel.findByIdAndUpdate(userId, { refreshToken: null });
-      return { statusCode: 204, message: 'Logout successfully' };
+      await this.blackListTokenService.createBlackListToken(token);
+      return true;
     } catch (error) {
       console.error(error);
       throw new Error('Logout failed');
@@ -123,5 +129,64 @@ export class AuthService {
     const tokens = await this.signToken(user.id);
     return tokens;
   }
+
+  async decodeToken(token: string) {
+    try {
+      const secret = this.config.get('JWT_SECRET');
+      const decodedToken = await this.jwt.verifyAsync(token, {
+        secret: secret,
+        algorithms: ['HS256'],
+      });
+      return decodedToken;
+    } catch (e) {
+      throw new HttpException('Token is invalid', 400);
+    }
+  }
+
+  async verifyAdminToken(token: string): Promise<boolean> {
+    if (!token) {
+      throw new HttpException('Token is required', 400);
+    }
+    const decodedToken = await this.decodeToken(token);
+    if (decodedToken.userId && decodedToken.exp < Date.now()) {
+      const account = await this.userModel.findById(decodedToken.userId);
+      if (account?._id === decodedToken.userId && account?.role === 'admin') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async verifyStaffToken(token: string): Promise<boolean> {
+    if (!token) {
+      throw new HttpException('Token is required', 400);
+    }
+    const decodedToken = await this.decodeToken(token);
+    if (decodedToken.userId && decodedToken.exp < Date.now()) {
+      const account = await this.userModel.findById(decodedToken.userId);
+      if (
+        account?._id === decodedToken.userId &&
+        (account?.role === 'admin' || account?.role === 'staff')
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async verifyToken(token: string): Promise<string | null> {
+    try {
+      if (!token) {
+        throw new HttpException('Token is required', 400);
+      }
+      const decodedToken = await this.decodeToken(token);
+      if (decodedToken.userId && decodedToken.exp < Date.now()) {
+        return decodedToken.userId;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+  // Path: src/auth/dto/auth.dto.ts
 }
-// Path: src/auth/dto/auth.dto.ts

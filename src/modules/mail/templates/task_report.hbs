@@ -1,0 +1,79 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Task Reports</title>
+  </head>
+  <body>
+    <div
+      style='width: 100vw; height: 100vh; display: table; margin: 0 auto; margin:10px'
+    >
+      <div style='display: table-cell;'>
+        <div
+          style='display: inline-block; border: 2px solid; min-width: 14rem; width: auto; min-height: 11rem; border-radius: 0.5rem; padding: 1rem;'
+        >
+          <div style='width: 11rem; margin: 0 auto;margin-bottom:10px'>
+            <img
+              src=`{{imageUrl}}`
+              style='width: 100%; border:0px'
+            />
+          </div>
+          <div>
+            {{workName}}
+            /
+            {{boardName}}
+            / KAN-{{index}}</div>
+          <div>
+            <span
+              style='font-size: 1.25rem; font-weight: 600; color: #2563eb;'
+            >{{taskName}}</span>
+          </div>
+          <table style='width: 100%; margin-top: 1rem;'>
+            <tr>
+              <td
+                style='width: 5rem; height: 5rem; border: 2px solid; border-radius: 100%; text-align: center; vertical-align: middle;'
+              >
+                <img
+                  src=`{{imageUrl}}`
+                  style='width: 100%; height: auto; border:0px'
+                />
+              </td>
+              <td style='padding-left: 0.75rem;'>
+                <div>
+                  <span>{{firstName}}
+                    {{lastName}}</span>
+                  <span style='margin:0.5rem'>-</span>
+                  <span>{{updatedAt}}</span>
+                </div>
+                <table style='width: 100%; margin-top: 1.25rem;'>
+                  <tr>
+                    <td style='padding-right: 0.75rem;'>Status</td>
+                    <td
+                      style='border: 2px solid; padding: 0.375rem; border-radius: 0.375rem; background-color: #dbeafe; text-align: center;'
+                    >
+                      <span
+                        style='text-decoration: line-through;'
+                      >{{oldStatus}}</span>
+                    </td>
+                    <td style='padding: 0 0.5rem; text-align: center;'>
+                        <img
+                  src=`{{arrow}}`
+                  style='width: 100%; height: auto; border:0px'
+                />
+                    </td>
+                    <td
+                      style='border: 2px solid; padding: 0.375rem; border-radius: 0.375rem; background-color: #bbf7d0; text-align: center;'
+                    >
+                      <span>{{newStatus}}</span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

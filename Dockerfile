@@ -1,5 +1,4 @@
-# build stage
-FROM node:20-alpine AS build
+FROM node:16
 
 WORKDIR /usr/src/app
 
@@ -9,24 +8,10 @@ RUN npm install
 
 COPY . .
 
+COPY .env ./
+
 RUN npm run build
-
-# prod stage
-FROM node:20-alpine
-
-WORKDIR /usr/src/app
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-COPY --from=build /usr/src/app/dist ./dist
-
-COPY package*.json ./
-
-RUN npm install --only=production
-
-RUN rm package*.json
 
 EXPOSE 8000
 
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]

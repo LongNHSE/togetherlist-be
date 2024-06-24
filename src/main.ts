@@ -89,6 +89,4 @@ Beyond the syntax and algorithms, cherish the community that thrives in the shar
 And amidst the whirlwind of updates and frameworks, remember the joy that sparked your journey into coding. Whether you're crafting websites that breathe life into ideas, engineering systems that power industries, or exploring the frontiers of AI, your work matters.
 
 So, as you embark on each new line of code, let passion be your compass, curiosity your fuel, and persistence your guiding star. For in the heart of code lies not just the promise of technology, but the power to shape a better tomorrow.
-
-
 */

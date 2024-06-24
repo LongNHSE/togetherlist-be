@@ -31,6 +31,7 @@ export class TaskService implements OnModuleInit {
     this.changeStream.on(
       'change',
       async (change: ChangeStreamDocument<Task>) => {
+        console.log(change);
         if (
           change.operationType === 'update' &&
           change.updateDescription &&
@@ -75,10 +76,23 @@ export class TaskService implements OnModuleInit {
             reportTask.assignee = documentBeforeChange.assignee as string;
           }
           await this.reportTaskModel.findOneAndUpdate(
-            { _id: documentBeforeChange._id }, // Assuming _id is the identifier
+            { task: documentBeforeChange._id }, // Assuming _id is the identifier
             { $set: reportTask }, // Update the document
             { upsert: true, new: true }, // Options: upsert to create if not found, new to return the updated document
           );
+        }
+        if (change.operationType === 'insert' && change.fullDocument) {
+          await this.reportTaskModel.create({
+            task: change.fullDocument._id,
+            board: change.fullDocument.board,
+            oldStatus: change.fullDocument.status,
+            newStatus: change.fullDocument.status,
+            description: 'Task created',
+            assignee: change.fullDocument.assignee,
+            isNewAssignee: false,
+            isNewStatus: false,
+            isNewSchedule: false,
+          });
         }
       },
     );

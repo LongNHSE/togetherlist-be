@@ -29,8 +29,27 @@ export class Notification {
   })
   to: User | string;
 
+  @Prop({
+    required: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
+  })
+  assignee: User | string | null | undefined;
+
+  @Prop({ required: false, type: String })
+  oldStatus: string | null;
+
+  @Prop({ required: false, type: String })
+  newStatus: string | null;
+
   @Prop({ required: true, default: 'unread' })
   status: string;
+
+  @Prop({ required: false })
+  isNewStatus: boolean;
+
+  @Prop({ required: false })
+  isNewAssignee: boolean;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

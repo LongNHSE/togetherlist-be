@@ -26,13 +26,9 @@ export class ReportTaskService {
       if (change.documentKey._id) {
         const reportTask = await this.findById(change.documentKey._id);
         if (change?.updateDescription?.updatedFields.assignee) {
-          console.log('This is assignee notification');
           this.scheduleAssigneeNotification(reportTask[0]);
         }
-        if (
-          change?.updateDescription?.updatedFields.newStatus &&
-          change?.updateDescription?.updatedFields.oldStatus
-        ) {
+        if (change?.updateDescription?.updatedFields.newStatus) {
           this.scheduleNotification(reportTask[0]);
         }
       }
@@ -47,7 +43,7 @@ export class ReportTaskService {
     @InjectQueue('report-task-queue') private reportTaskQueue: Queue,
     @InjectQueue('assignee-task-queue') private assigneeTaskQueue: Queue,
   ) {}
-
+  DELAY = 1 * 2 * 1000; // 3 minutes delay
   //This use when change status of task
   async scheduleNotification(reportTask: any) {
     // Cancel any existing job for this task
@@ -64,7 +60,7 @@ export class ReportTaskService {
     const job = await this.reportTaskQueue.add(
       'report-task-queue',
       { reportTask },
-      { delay: 1 * 2 * 1000 }, // 3 minutes delay
+      { delay: this.DELAY }, // 3 minutes delay
     );
     // Store job ID in map
     if (job.id) {
@@ -87,7 +83,7 @@ export class ReportTaskService {
     const job = await this.assigneeTaskQueue.add(
       'assignee-task-queue',
       { reportTask },
-      { delay: 1 * 2 * 1000 }, // 3 minutes delay
+      { delay: this.DELAY }, // 3 minutes delay
     );
     // Store job ID in map
     if (job.id) {
@@ -220,14 +216,29 @@ export class ReportTaskService {
   }
 
   async sendNotification(reportTask: any) {
+    console.log('This is Status notification');
     const member = await this.memberService.findAll(reportTask.workspace._id);
     await this.mailService.sendReportTask(reportTask, member);
     await this.notificationService.createNotificationWorker(reportTask, member);
+
+    // await this.reportTaskModel.updateOne(
+    //   { _id: reportTask._id },
+    //   { isNewStatus: false },
+    // );
   }
 
   async sendAssigneeNotification(reportTask: any) {
     console.log('This is assignee notification');
     const member = await this.memberService.findAll(reportTask.workspace._id);
     await this.mailService.sendReportAssigneeTask(reportTask, member);
+    await this.notificationService.createAssigneeNotificationWorker(
+      reportTask,
+      member,
+    );
+
+    // await this.reportTaskModel.updateOne(
+    //   { _id: reportTask._id },
+    //   { isNewAssignee: false },
+    // );
   }
 }

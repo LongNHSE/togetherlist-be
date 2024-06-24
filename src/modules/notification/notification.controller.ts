@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/decorator';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,11 +20,20 @@ export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
   @Get('/my')
   @UseGuards(AuthGuard('jwt'))
-  async getMyNotifications(@GetUser() user: any) {
+  async getMyNotifications(
+    @GetUser() user: any,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    console.log(page);
+    console.log(limit);
     try {
       const result = await this.notificationService.getMyNotification(
+        parseInt(page),
+        parseInt(limit),
         user.userId,
       );
+      console.log(result.length);
       return apiSuccess(200, result, 'Get notifications successfully');
     } catch (e) {
       throw e;
@@ -33,7 +50,7 @@ export class NotificationController {
     try {
       const result = await this.notificationService.updateStatus(
         id,
-        updateNotificationDto.status as string,
+        updateNotificationDto,
       );
       if (result) {
         return apiSuccess(204, result, 'Updated successfully');

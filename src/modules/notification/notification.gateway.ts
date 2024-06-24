@@ -55,7 +55,6 @@ export class NotificationGateway implements OnModuleInit {
     // if (this.AllUser.has(notification.to)) {
     //   console.log(this.AllUser.get(notification.to));
     // }
-    console.log('received notification');
     this.server
       .to(notification.to.toString() as string)
       .emit('notification', notification);

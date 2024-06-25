@@ -18,6 +18,7 @@ import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { WorkspaceService } from '../workspace/workspace.service';
 import { UpdateBoardStatusDto } from './dto/update-board-status.dto';
 import { CreateBoardStatusDto } from './dto/create-board-status.dto';
+import { Types } from 'mongoose';
 
 @Controller('boards')
 export class BoardController {
@@ -41,10 +42,10 @@ export class BoardController {
         if (result) {
           await this.sectionService.updateBoardId(
             defaultSection._id,
-            result._id,
+            result._id as Types.ObjectId,
           );
           await this.workspaceService.addBoardToWorkspace(
-            result._id,
+            result._id as Types.ObjectId,
             result.workspace,
           );
           return apiSuccess(200, result, 'Create board successfully');

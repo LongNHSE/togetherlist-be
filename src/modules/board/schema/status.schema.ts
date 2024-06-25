@@ -2,12 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
 export class Status {
-  @Prop({
-    type: new mongoose.Types.ObjectId(),
-    index: true,
-    required: true,
-    auto: true,
-  })
+  @Prop({ required: true, default: () => new mongoose.Types.ObjectId() })
   _id: mongoose.Types.ObjectId;
   @Prop({ required: true })
   name: string;

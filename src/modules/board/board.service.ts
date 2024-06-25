@@ -294,7 +294,8 @@ export class BoardService {
   }
 
   async create(createBoardDto: CreateBoardDto) {
-    return await this.boardModel.create(createBoardDto);
+    const board = new this.boardModel(createBoardDto);
+    return await board.save();
   }
 
   findAll() {

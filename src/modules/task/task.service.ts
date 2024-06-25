@@ -3,7 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Task } from './schema/task.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Section } from '../section/schema/section.schema';
 import { Board } from '../board/schema/board.schema';
 import { ChangeStream, ChangeStreamDocument } from 'mongodb';
@@ -13,6 +13,65 @@ import { ReportTask } from 'src/modules/report-task/schema/report-task.schema';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
+  async getReportWeek(boardId: string, year: string, month: string) {
+    let data = await this.taskModel.aggregate([
+      {
+        $match: {
+          board: new mongoose.Types.ObjectId(boardId),
+        },
+      },
+      {
+        $lookup: {
+          from: 'boards', // Reference the correct collection
+          localField: 'status', // The field from the tasks collection
+          foreignField: 'taskStatus._id', // The nested field in the boards collection
+          as: 'statusDetails', // Alias for the resulting array
+        },
+      },
+      {
+        $unwind: {
+          path: '$statusDetails',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          status: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$statusDetails.taskStatus',
+                  as: 'taskStatus',
+                  cond: { $eq: ['$$taskStatus._id', '$status'] },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          statusDetails: 0, // Optionally remove the temporary statusDetails field
+        },
+      },
+    ]);
+    data.forEach((task) => {
+      const taskDate = new Date(task.createdAt);
+      const taskYear = taskDate.getFullYear();
+      const taskMonth = taskDate.getMonth() + 1; // getMonth is zero-based
+      const taskWeek = Math.ceil(taskDate.getDate() / 7); // Rough estimation of the week in the month
+      task.year = taskYear;
+      task.month = taskMonth;
+      task.week = taskWeek;
+    });
+
+    data = data.filter((task) => {
+      return task.year === parseInt(year) && task.month === parseInt(month);
+    });
+
+    return data;
+  }
   private changeStream: ChangeStream<ChangeStreamDocument<Task>>;
   private jobMap = new Map<string, string>(); // Map to store task ID to job ID
 

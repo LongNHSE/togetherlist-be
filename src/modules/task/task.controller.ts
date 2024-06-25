@@ -8,6 +8,7 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -44,6 +45,32 @@ export class TaskController {
         return apiSuccess(200, result, 'Test');
       }
     } catch (error) {}
+  }
+
+  @Get('/board/:boardId')
+  async getPercentTask(@Param('boardId') boardId: string) {
+    try {
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @Get('/board/:boardId/reportWeek')
+  async getReportWeek(
+    @Param('boardId') boardId: string,
+    @Query('year') year: string,
+    @Query('month') month: string,
+  ) {
+    try {
+      const result = await this.taskService.getReportWeek(boardId, year, month);
+      if (result) {
+        return apiSuccess(200, result, 'Get report week successfully');
+      } else {
+        return apiSuccess(400, {}, 'Get report week failed');
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @Get()

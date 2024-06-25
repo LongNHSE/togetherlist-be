@@ -1,6 +1,4 @@
-import { Controller } from "@nestjs/common";
+import { Controller } from '@nestjs/common';
 
 @Controller('subscription-plans')
-export class SubscriptionPlanController {
-
-}
+export class SubscriptionPlanController {}

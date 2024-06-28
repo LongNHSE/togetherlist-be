@@ -24,6 +24,7 @@ import { ReportTaskModule } from './modules/report-task/report-task.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { SessionModule } from './modules/session/session.module';
 import { TestSocketModule } from './modules/test-socket/test-socket.module';
+import { SubscriptionTypeModule } from './modules/subscription_type/subscription_type.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { TestSocketModule } from './modules/test-socket/test-socket.module';
     ReportTaskModule,
     SessionModule,
     TestSocketModule,
+    SubscriptionTypeModule,
   ],
   providers: [],
 })

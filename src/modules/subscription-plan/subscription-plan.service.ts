@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { SubscriptionPlan } from './schema/subscription-plan.shema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { SubscriptionType } from '../subscription_type/schema/subscription_type.schema';
 import { SubscriptionTypeService } from '../subscription_type/subscription_type.service';
 
@@ -21,9 +21,20 @@ export class SubscriptionPlanService {
   }
 
   findMySubscriptionPlan(userId: string) {
-    return this.subscriptionPlanModel
-      .findOne({ userId })
-      .sort({ createdAt: -1 });
+    return this.subscriptionPlanModel.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'subscriptiontypes', // Assuming the collection name is subscriptionTypes
+          localField: 'subscriptionTypeId',
+          foreignField: '_id',
+          as: 'subscriptionType',
+        },
+      },
+      { $unwind: '$subscriptionType' },
+      { $limit: 1 }, // Assuming you want the latest subscription plan similar to findOne
+    ]);
   }
 
   async createFreeSubscriptionPlan(userId: string) {

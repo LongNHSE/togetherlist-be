@@ -5,6 +5,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Member } from './schema/member.schema';
 import mongoose, { Model } from 'mongoose';
 import { NestedCreateMemberDto } from './dto/nested-create-member.dto';
+import { throws } from 'assert';
+import { TaskService } from '../task/task.service';
+import { Task } from '../task/schema/task.schema';
 
 @Injectable()
 export class MemberService {
@@ -70,6 +73,15 @@ export class MemberService {
         },
       },
       { $unwind: '$member' },
+      {
+        // Add fields to the member object, this happen because the FE mistakenly use member object as user object
+        $addFields: {
+          'member.role': '$role',
+          'member.memberId': '$memberId',
+          'member.workspaceId': '$workspaceId',
+          'member.status': '$status',
+        },
+      },
     ]);
   }
 
@@ -81,8 +93,12 @@ export class MemberService {
     return `This action updates a #${id} member`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} member`;
+  async remove(workSpaceId: string, memberId: string) {
+    const result = await this.memberModel.findOneAndDelete({
+      workspaceId: new mongoose.Types.ObjectId(workSpaceId),
+      memberId: new mongoose.Types.ObjectId(memberId),
+    });
+    return result;
   }
 
   findSharedWorkspace(userId: string) {

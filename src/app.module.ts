@@ -33,7 +33,7 @@ import { SubscriptionTypeModule } from './modules/subscription_type/subscription
     }),
     BullModule.forRoot({
       connection: {
-        host: 'localhost',
+        host: process.env.REDIS_HOST || 'redis',
         port: 6379,
       },
     }),

@@ -19,6 +19,7 @@ import { GetUser } from 'src/common/decorator/user.decorator';
 import { MemberService } from '../member/member.service';
 import { CreateMemberDto } from '../member/dto/create-member.dto';
 import { UserService } from '../user/user.service';
+import { TaskService } from '../task/task.service';
 
 @Controller('workspaces')
 export class WorkspaceController {
@@ -26,6 +27,7 @@ export class WorkspaceController {
     private readonly workspaceService: WorkspaceService,
     private readonly memberService: MemberService,
     private readonly userService: UserService,
+    private readonly taskService: TaskService,
   ) {}
 
   @Post()
@@ -197,18 +199,17 @@ export class WorkspaceController {
       email = email.email;
       const isExist = await this.workspaceService.isExist(id);
       if (!isExist) {
-        return apiFailed(400, 'Workspace not found');
+        return apiFailed(400, null, 'Workspace not found');
       }
       const isOwner = await this.workspaceService.isOwner(id, user.userId);
       if (!isOwner) {
-        return apiFailed(400, `You don't have permission`);
+        return apiFailed(400, null, `You don't have permission`);
       }
 
       const memberResult = await this.userService.checkExistedEmail(email);
       if (!memberResult) {
-        return apiFailed(400, 'Email not found');
+        return apiFailed(400, null, 'Email not found');
       }
-      console.log(memberResult);
       const result = await this.memberService.createWithEmail(
         id,
         memberResult._id,
@@ -217,9 +218,50 @@ export class WorkspaceController {
       if (result) {
         return apiSuccess(200, result, 'Add member successfully');
       } else {
-        return apiFailed(400, 'Add member failed');
+        return apiFailed(400, null, 'Add member failed');
       }
     } catch (error) {
+      if (error.code === 11000) {
+        return apiFailed(400, null, 'Member already in the workspace');
+      }
+      console.log(error);
+      return error;
+    }
+  }
+
+  @Delete(':id/members/:memberId')
+  @UseGuards(AuthGuard('jwt'))
+  async removeMember(
+    @Param('id') workspaceId: string,
+    @Param('memberId') memberId: string,
+    @GetUser() user: any,
+  ) {
+    try {
+      const isExist = await this.workspaceService.isExist(workspaceId);
+      if (!isExist) {
+        return apiFailed(400, null, 'Workspace not found');
+      }
+      const isOwner = await this.workspaceService.isOwner(
+        workspaceId,
+        user.userId,
+      );
+      if (!isOwner) {
+        return apiFailed(400, null, `You don't have permission`);
+      }
+      const result = await this.memberService.remove(workspaceId, memberId);
+      if (result) {
+        this.taskService.updateTaskAssigneeRemove(workspaceId, memberId);
+      }
+      if (result) {
+        return apiSuccess(200, result, 'Remove member successfully');
+      } else {
+        return apiFailed(400, null, 'Remove member successfully');
+      }
+    } catch (error) {
+      if (error.code === 11000) {
+        return apiFailed(400, null, 'Remove member successfully');
+      }
+      console.log(error);
       return error;
     }
   }

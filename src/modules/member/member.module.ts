@@ -8,6 +8,9 @@ import {
   WorkSpace,
   workspaceSchema,
 } from '../workspace/schema/workspace.schema';
+import { TaskModule } from '../task/task.module';
+import { TaskService } from '../task/task.service';
+import { Task, taskSchema } from '../task/schema/task.schema';
 
 @Module({
   controllers: [MemberController],

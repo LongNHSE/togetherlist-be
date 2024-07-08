@@ -48,6 +48,9 @@ export class User {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Room' }] })
   joinedRooms: Room[];
 
+  @Prop({ required: false })
+  bio: string;
+
   @Prop()
   refreshToken: string;
 

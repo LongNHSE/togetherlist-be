@@ -23,17 +23,9 @@ import { NotificationModule } from '../notification/notification.module';
     BullModule.registerQueue(
       {
         name: 'report-task-queue',
-        connection: {
-          host: 'localhost',
-          port: 6379,
-        },
       },
       {
         name: 'assignee-task-queue',
-        connection: {
-          host: 'localhost',
-          port: 6379,
-        },
       },
     ),
   ],

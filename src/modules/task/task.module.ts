@@ -20,11 +20,6 @@ import {
     MongooseModule.forFeature([{ name: 'Task', schema: taskSchema }]),
     BullModule.registerQueue({
       name: 'task-queue',
-
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
     }),
     MongooseModule.forFeature([{ name: Board.name, schema: boardSchema }]),
     MongooseModule.forFeature([{ name: Section.name, schema: sectionSchema }]),
@@ -33,5 +28,6 @@ import {
     ]),
   ],
   providers: [TaskService, BoardService, SectionService, TaskProcessor],
+  exports: [TaskService],
 })
 export class TaskModule {}

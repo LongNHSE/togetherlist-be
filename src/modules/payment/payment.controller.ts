@@ -1,15 +1,29 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { apiFailed } from 'src/common/api-response';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../auth/decorator';
 
 @Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('/create-payment-link')
-  async createPaymentLink() {
+  @UseGuards(AuthGuard('jwt'))
+  async createPaymentLink(@Body() body: any, @GetUser() user: any) {
     try {
-      return await this.paymentService.createPaymentLink();
+      return await this.paymentService.createPaymentLink(
+        body.subscriptionTypeId,
+        user.userId,
+      );
+    } catch (error) {
+      throw apiFailed(error.statusCode, null, error.message);
+    }
+  }
+  @Post('/webhook')
+  async handleWebhook(@Body() body: any) {
+    try {
+      return await this.paymentService.handleWebHook(body);
     } catch (error) {
       throw apiFailed(error.statusCode, null, error.message);
     }

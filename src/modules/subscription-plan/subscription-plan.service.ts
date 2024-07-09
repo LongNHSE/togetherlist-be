@@ -7,6 +7,17 @@ import { SubscriptionTypeService } from '../subscription_type/subscription_type.
 
 @Injectable()
 export class SubscriptionPlanService {
+  async createSubscriptionPlan(userId: string, subscriptionPlanId: string) {
+    const subscriptionType: SubscriptionType | null =
+      await this.subscriptionTypeService.findOne(subscriptionPlanId);
+    if (!subscriptionType) {
+      return null;
+    }
+    return this.create(
+      { userId, subscriptionTypeId: subscriptionPlanId },
+      subscriptionType,
+    );
+  }
   constructor(
     @InjectModel(SubscriptionPlan.name)
     private subscriptionPlanModel: Model<SubscriptionPlan>,

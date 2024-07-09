@@ -25,6 +25,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { SessionModule } from './modules/session/session.module';
 import { TestSocketModule } from './modules/test-socket/test-socket.module';
 import { SubscriptionTypeModule } from './modules/subscription_type/subscription_type.module';
+import { WebhookHandlerModule } from './modules/webhook-handler/webhook-handler.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { SubscriptionTypeModule } from './modules/subscription_type/subscription
     SessionModule,
     TestSocketModule,
     SubscriptionTypeModule,
+    WebhookHandlerModule,
   ],
   providers: [],
 })

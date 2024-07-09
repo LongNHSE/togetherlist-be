@@ -7,6 +7,7 @@ import { SubscriptionTypeModule } from '../subscription_type/subscription_type.m
 import { TransactionModule } from '../transaction/transaction.module';
 import { UserModule } from '../user/user.module';
 import { WebhookHandlerService } from './webhook-handler.service';
+import { WebhookHandlerController } from './webhook-handler.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { WebhookHandlerService } from './webhook-handler.service';
     TransactionModule,
     InvoiceModule,
   ],
-  controllers: [],
+  controllers: [WebhookHandlerController],
   providers: [WebhookHandlerService],
 })
 export class WebhookHandlerModule {}

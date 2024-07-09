@@ -37,14 +37,14 @@ export class SubscriptionPlanService {
       { $sort: { createdAt: -1 } },
       {
         $lookup: {
-          from: 'subscriptiontypes', // Assuming the collection name is subscriptionTypes
+          from: 'subscriptiontypes',
           localField: 'subscriptionTypeId',
           foreignField: '_id',
           as: 'subscriptionType',
         },
       },
       { $unwind: '$subscriptionType' },
-      { $limit: 1 }, // Assuming you want the latest subscription plan similar to findOne
+      { $limit: 1 },
     ]);
   }
 
@@ -71,6 +71,8 @@ export class SubscriptionPlanService {
       date.setMonth(date.getMonth() + subscriptionType.duration);
       createSubscriptionPlanDto.to = date;
     }
+    createSubscriptionPlanDto.createdAt = new Date();
+    createSubscriptionPlanDto.updatedAt = new Date();
 
     return this.subscriptionPlanModel.create(createSubscriptionPlanDto);
   }

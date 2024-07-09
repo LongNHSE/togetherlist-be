@@ -68,7 +68,7 @@ import { WebhookHandlerModule } from './modules/webhook-handler/webhook-handler.
     SessionModule,
     TestSocketModule,
     SubscriptionTypeModule,
-    WebhookHandlerModule,
+    // WebhookHandlerModule,
   ],
   providers: [],
 })

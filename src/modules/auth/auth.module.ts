@@ -11,12 +11,14 @@ import { OTP, otpSchema } from '../otp/schema/otp.schema';
 import { UserModule } from '../user/user.module';
 import { OtpModule } from '../otp/otp.module';
 import { BlackListTokenModule } from '../black-list-token/black-list-token.module';
+import { SubscriptionPlanModule } from '../subscription-plan/subscription-plan.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
   imports: [
     ConfigModule,
+    SubscriptionPlanModule,
     MailModule,
     UserModule,
     BlackListTokenModule,

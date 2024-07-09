@@ -11,6 +11,7 @@ import { Response } from 'express';
 import { apiFailed } from 'src/common/api-response';
 import { BlackListTokenService } from '../black-list-token/black-list-token.service';
 import passport from 'passport';
+import { SubscriptionPlanService } from '../subscription-plan/subscription-plan.service';
 @Injectable({})
 export class AuthService {
   constructor(
@@ -18,6 +19,7 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
     private blackListTokenService: BlackListTokenService,
+    private subscriptionPlanService: SubscriptionPlanService,
   ) {}
 
   async login(LoginDTO: LoginDTO, response: Response) {
@@ -65,9 +67,12 @@ export class AuthService {
       const token = await this.signToken(newUser._id);
       await newUser.save();
       const refreshToken = await this.updateRefreshToken(newUser._id);
+      const subscriptionPlan =
+        await this.subscriptionPlanService.createFreeSubscriptionPlan(
+          newUser._id,
+        );
       newUser.password = '';
       newUser.refreshToken = '';
-      console.log(newUser);
       return {
         statusCode: 201,
         message: 'Created successfully',

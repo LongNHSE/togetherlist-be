@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';;
+import mongoose, { Document, Types } from 'mongoose';
+import { SubscriptionType } from 'src/modules/subscription_type/schema/subscription_type.schema';
+import { User } from 'src/modules/user/schema/user.schema';
 
 export type SubscriptionPlanDocument = SubscriptionPlan & Document;
 
@@ -7,25 +9,27 @@ export type SubscriptionPlanDocument = SubscriptionPlan & Document;
 export class SubscriptionPlan {
   @Prop({
     required: true,
-    type: Types.ObjectId,
-    ref: 'User'
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
   })
-  userId: string;
+  userId: string | mongoose.Schema.Types.ObjectId;
+
+  @Prop({
+    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: SubscriptionType.name,
+  })
+  subscriptionTypeId: string | Types.ObjectId;
 
   @Prop({ required: true })
-  planName: string;
+  from: Date;
 
-  @Prop()
-  planDescription: string;
+  @Prop({ required: false })
+  to: Date;
 
-  @Prop({ required: true, type: Number })
-  monthlyFee: number;
-
-  @Prop({ type: Number })
-  annualFee: number;
-
-  @Prop()
-  features: string;
+  @Prop({ required: false, default: 'active' })
+  status: string;
 }
 
-export const SubscriptionPlanSchema = SchemaFactory.createForClass(SubscriptionPlan);
+export const SubscriptionPlanSchema =
+  SchemaFactory.createForClass(SubscriptionPlan);

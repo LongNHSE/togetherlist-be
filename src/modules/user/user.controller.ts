@@ -22,6 +22,7 @@ import { getNameImageFromUrl } from 'src/utils';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { GetUser } from '../auth/decorator';
 
 @Controller('users')
 export class UserController {
@@ -40,7 +41,26 @@ export class UserController {
       throw apiFailed(error.statusCode, null, error.message);
     }
   }
-
+  @Post('/avatar')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('file'))
+  async postAvatar(
+    @GetUser() user: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log(file);
+    try {
+      const urlResult = await this.imageService.uploadImage(file);
+      const imageName = getNameImageFromUrl(urlResult);
+      const updatedUser = await this.userService.updateImage(
+        user.userId,
+        imageName,
+      );
+      return apiSuccess(200, updatedUser, 'Add user avatar successfully');
+    } catch (error) {
+      return apiFailed(error.statusCode, null, error.message);
+    }
+  }
   @Get()
   @UseGuards(AuthGuard('jwt'))
   async findAll() {
@@ -87,23 +107,6 @@ export class UserController {
     console.log(updateUserDto);
     const userUpdated = await this.userService.update(id, updateUserDto);
     return apiSuccess(200, { userUpdated }, 'Update user successfully');
-  }
-
-  @Post(':id/avatar')
-  @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FileInterceptor('file'))
-  async postAvatar(
-    @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    try {
-      const urlResult = await this.imageService.uploadImage(file);
-      const imageName = getNameImageFromUrl(urlResult);
-      const updatedUser = await this.userService.updateImage(id, imageName);
-      return apiSuccess(200, { updatedUser }, 'Add user avatar successfully');
-    } catch (error) {
-      return apiFailed(error.statusCode, null, error.message);
-    }
   }
 
   @Delete(':id')

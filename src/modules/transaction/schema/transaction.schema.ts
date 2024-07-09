@@ -25,14 +25,14 @@ export class Transaction {
   })
   userId: string;
 
-  @Prop({ required: true })
-  transactionDate: Date;
+  // @Prop({ required: true })
+  // transactionDate: Date;
 
   @Prop({ required: true })
   amount: number;
 
-  @Prop({ required: true })
-  transactionType: string;
+  // @Prop({ required: true })
+  // transactionType: string;
 
   @Prop({ required: true })
   paymentMethod: string;
@@ -40,11 +40,11 @@ export class Transaction {
   @Prop({ required: true })
   status: string;
 
-  @Prop()
-  notes: string;
+  // @Prop()
+  // notes: string;
 
-  @Prop()
-  createdBy: string;
+  // @Prop()
+  // createdBy: string;
 }
 
 export const transactionSchema = SchemaFactory.createForClass(Transaction);

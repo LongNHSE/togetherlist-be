@@ -13,6 +13,17 @@ import { ReportTask } from 'src/modules/report-task/schema/report-task.schema';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
+  updateTaskAssigneeRemove(workspaceId: string, memberId: string) {
+    return this.taskModel.updateMany(
+      {
+        $and: [
+          { assignee: new mongoose.Types.ObjectId(memberId) },
+          { workspace: new mongoose.Types.ObjectId(workspaceId) },
+        ],
+      },
+      { $set: { assignee: null } },
+    );
+  }
   async getReportWeek(boardId: string, year: string, month: string) {
     let data = await this.taskModel.aggregate([
       {

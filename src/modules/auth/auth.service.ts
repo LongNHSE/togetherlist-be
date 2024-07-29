@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { apiFailed } from 'src/common/api-response';
 import { BlackListTokenService } from '../black-list-token/black-list-token.service';
-import passport from 'passport';
+import passport, { use } from 'passport';
 import { SubscriptionPlanService } from '../subscription-plan/subscription-plan.service';
 @Injectable({})
 export class AuthService {
@@ -23,7 +23,7 @@ export class AuthService {
   ) {}
 
   async login(LoginDTO: LoginDTO, response: Response) {
-    const user: AuthDTO | null = await this.userModel.findOne({
+    const user: User | null = await this.userModel.findOne({
       username: LoginDTO.username,
     });
     if (!user) {
@@ -33,7 +33,7 @@ export class AuthService {
     if (!match) {
       return apiFailed(404, {}, 'Password is incorrect');
     }
-    const token = await this.signToken(user._id);
+    const token = await this.signToken(user._id, user);
     const refreshToken = await this.updateRefreshToken(user._id);
     user.password = '';
     user.refreshToken = '';
@@ -64,7 +64,7 @@ export class AuthService {
     //create new user
     try {
       const newUser = new this.userModel({ ...dto, password: hash });
-      const token = await this.signToken(newUser._id);
+      const token = await this.signToken(newUser._id, newUser);
       await newUser.save();
       const refreshToken = await this.updateRefreshToken(newUser._id);
       const subscriptionPlan =
@@ -105,9 +105,12 @@ export class AuthService {
     }
   }
 
-  async signToken(userId: string): Promise<string> {
+  async signToken(userId: string, user: User): Promise<string> {
     const secret = this.config.get('JWT_SECRET');
-    return this.jwt.signAsync({ userId }, { expiresIn: '15m', secret: secret });
+    return this.jwt.signAsync(
+      { userId, role: user.role },
+      { expiresIn: '15m', secret: secret },
+    );
   }
 
   async updateRefreshToken(userId: string): Promise<string> {
@@ -123,15 +126,12 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, refreshToken: string) {
-    console.log(userId, refreshToken);
     const user = await this.userModel.findById(userId);
-    console.log(user);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
     const refreshTokenMatches = refreshToken === user.refreshToken;
-    console.log(refreshTokenMatches);
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.signToken(user.id);
+    const tokens = await this.signToken(user.id, user);
     return tokens;
   }
 

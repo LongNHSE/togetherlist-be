@@ -1,3 +1,4 @@
+import { MemberGateway } from './modules/member/member.gateway';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -26,18 +27,21 @@ import { SessionModule } from './modules/session/session.module';
 import { TestSocketModule } from './modules/test-socket/test-socket.module';
 import { SubscriptionTypeModule } from './modules/subscription_type/subscription_type.module';
 import { WebhookHandlerModule } from './modules/webhook-handler/webhook-handler.module';
+import { RoomChatModule } from './modules/room_chat/room_chat.module';
+import { RoomChatMemberModule } from './modules/room_chat_member/room_chat_member.module';
+import { TestModule } from './modules/test/test.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST || 'redis',
-        port: 6379,
-      },
-    }),
+    // BullModule.forRoot({
+    //   connection: {
+    //     host: process.env.REDIS_HOST || 'redis',
+    //     port: 6379,
+    //   },
+    // }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -52,24 +56,27 @@ import { WebhookHandlerModule } from './modules/webhook-handler/webhook-handler.
     ImageModule,
     FirebaseModule,
     InvoiceModule,
-    NotificationModule,
+    // NotificationModule,
     TransactionModule,
     SubscriptionPlanModule,
-    WorkspaceModule,
-    TaskModule,
-    BoardModule,
+    // WorkspaceModule,
+    // TaskModule,
+    // BoardModule,
     SectionModule,
-    MemberModule,
+    // MemberModule,
     ChatModule,
     MessagesModule,
     RoomModule,
     PaymentModule,
-    ReportTaskModule,
+    // ReportTaskModule,
     SessionModule,
     TestSocketModule,
     SubscriptionTypeModule,
+    RoomChatModule,
+    RoomChatMemberModule,
+    TestModule,
     // WebhookHandlerModule,
   ],
-  providers: [],
+  providers: [MemberGateway],
 })
 export class AppModule {}

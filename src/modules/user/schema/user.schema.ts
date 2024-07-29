@@ -1,14 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Room } from 'src/modules/room/schema/room.schema';
+import { SubscriptionPlan } from 'src/modules/subscription-plan/schema/subscription-plan.shema';
 
 export type UserDocument = User & Document;
 
 @Schema({
-  toJSON: {
-    getters: true,
-    virtuals: true,
-  },
   timestamps: true,
 })
 export class User {
@@ -55,6 +52,8 @@ export class User {
   refreshToken: string;
 
   _id: string;
+
+  subscriptionPlan: SubscriptionPlan | null | string;
 }
 
 export const userSchema = SchemaFactory.createForClass(User);

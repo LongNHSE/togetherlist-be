@@ -20,6 +20,8 @@ import { MemberService } from '../member/member.service';
 import { CreateMemberDto } from '../member/dto/create-member.dto';
 import { UserService } from '../user/user.service';
 import { TaskService } from '../task/task.service';
+import { MemberGateway } from '../member/member.gateway';
+import { RoomChatService } from '../room_chat/room_chat.service';
 
 @Controller('workspaces')
 export class WorkspaceController {
@@ -27,6 +29,7 @@ export class WorkspaceController {
     private readonly workspaceService: WorkspaceService,
     private readonly memberService: MemberService,
     private readonly userService: UserService,
+    private readonly memberGateWay: MemberGateway,
     private readonly taskService: TaskService,
   ) {}
 
@@ -214,8 +217,9 @@ export class WorkspaceController {
         id,
         memberResult._id,
       );
-      console.log(result);
       if (result) {
+        console.log('Emit');
+        this.memberGateWay.handleEvent(result);
         return apiSuccess(200, result, 'Add member successfully');
       } else {
         return apiFailed(400, null, 'Add member failed');

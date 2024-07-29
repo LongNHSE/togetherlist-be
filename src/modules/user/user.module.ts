@@ -7,11 +7,13 @@ import { ImageModule } from '../image/image.module';
 import { JwtModule } from '@nestjs/jwt';
 import { OTP, otpSchema } from '../otp/schema/otp.schema';
 import { IsUserExistsConstraint } from './validator/is-user-exists.validator';
+import { SubscriptionPlanModule } from '../subscription-plan/subscription-plan.module';
 
 @Module({
   controllers: [UserController],
   imports: [
     ImageModule,
+    SubscriptionPlanModule,
     MongooseModule.forFeature([{ name: User.name, schema: userSchema }]),
     MongooseModule.forFeature([{ name: OTP.name, schema: otpSchema }]),
     JwtModule.register({}),

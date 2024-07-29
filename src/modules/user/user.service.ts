@@ -9,12 +9,15 @@ import * as bcrypt from 'bcrypt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { OTP } from '../otp/schema/otp.schema';
 import { Model } from 'mongoose';
+import { SubscriptionPlanService } from '../subscription-plan/subscription-plan.service';
+import { use } from 'passport';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(OTP.name) private otpModel: Model<OTP>,
+    private readonly subscriptionPlanService: SubscriptionPlanService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -39,7 +42,19 @@ export class UserService {
   }
 
   async findAll() {
-    return this.userModel.find();
+    const users = await this.userModel.find().lean();
+    for (let i = 0; i < users.length; i++) {
+      const sub = await this.subscriptionPlanService.findMySubscriptionPlan(
+        users[i]._id,
+      );
+      if (sub && sub.length > 0) {
+        users[i].subscriptionPlan = sub[0];
+      } else {
+        users[i].subscriptionPlan = null; // or handle it as per your requirement
+      }
+    }
+
+    return users;
   }
 
   findOne(id: number) {

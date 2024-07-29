@@ -12,10 +12,13 @@ import {
 } from '../workspace/schema/workspace.schema';
 import { Task, taskSchema } from '../task/schema/task.schema';
 import { Section, sectionSchema } from '../section/schema/section.schema';
+import { RoomChat } from '../room_chat/schema/room_chat.schema';
+import { RoomChatModule } from '../room_chat/room_chat.module';
 
 @Module({
   controllers: [BoardController],
   imports: [
+    RoomChatModule,
     SectionModule,
     MongooseModule.forFeature([{ name: Task.name, schema: taskSchema }]),
     MongooseModule.forFeature([{ name: Section.name, schema: sectionSchema }]),

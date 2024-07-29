@@ -11,16 +11,19 @@ import {
 import { TaskModule } from '../task/task.module';
 import { TaskService } from '../task/task.service';
 import { Task, taskSchema } from '../task/schema/task.schema';
+import { MemberGateway } from './member.gateway';
+import { RoomChatModule } from '../room_chat/room_chat.module';
 
 @Module({
   controllers: [MemberController],
   imports: [
+    RoomChatModule,
     MongooseModule.forFeature([
       { name: WorkSpace.name, schema: workspaceSchema },
     ]),
     MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
   ],
-  providers: [MemberService, WorkspaceService],
-  exports: [MemberService],
+  providers: [MemberService, WorkspaceService, MemberGateway],
+  exports: [MemberService, MemberGateway],
 })
 export class MemberModule {}

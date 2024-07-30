@@ -36,12 +36,12 @@ import { TestModule } from './modules/test/test.module';
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
-    // BullModule.forRoot({
-    //   connection: {
-    //     host: process.env.REDIS_HOST || 'redis',
-    //     port: 6379,
-    //   },
-    // }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'redis',
+        port: 6379,
+      },
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -56,19 +56,19 @@ import { TestModule } from './modules/test/test.module';
     ImageModule,
     FirebaseModule,
     InvoiceModule,
-    // NotificationModule,
+    NotificationModule,
     TransactionModule,
     SubscriptionPlanModule,
-    // WorkspaceModule,
-    // TaskModule,
-    // BoardModule,
+    WorkspaceModule,
+    TaskModule,
+    BoardModule,
     SectionModule,
-    // MemberModule,
+    MemberModule,
     ChatModule,
     MessagesModule,
     RoomModule,
     PaymentModule,
-    // ReportTaskModule,
+    ReportTaskModule,
     SessionModule,
     TestSocketModule,
     SubscriptionTypeModule,

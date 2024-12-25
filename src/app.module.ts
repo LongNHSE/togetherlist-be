@@ -1,3 +1,4 @@
+import { MemberGateway } from './modules/member/member.gateway';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -25,6 +26,10 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { SessionModule } from './modules/session/session.module';
 import { TestSocketModule } from './modules/test-socket/test-socket.module';
 import { SubscriptionTypeModule } from './modules/subscription_type/subscription_type.module';
+import { WebhookHandlerModule } from './modules/webhook-handler/webhook-handler.module';
+import { RoomChatModule } from './modules/room_chat/room_chat.module';
+import { RoomChatMemberModule } from './modules/room_chat_member/room_chat_member.module';
+import { TestModule } from './modules/test/test.module';
 
 @Module({
   imports: [
@@ -67,7 +72,11 @@ import { SubscriptionTypeModule } from './modules/subscription_type/subscription
     SessionModule,
     TestSocketModule,
     SubscriptionTypeModule,
+    RoomChatModule,
+    RoomChatMemberModule,
+    TestModule,
+    // WebhookHandlerModule,
   ],
-  providers: [],
+  providers: [MemberGateway],
 })
 export class AppModule {}

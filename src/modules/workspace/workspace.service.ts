@@ -4,9 +4,17 @@ import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { WorkSpace } from './schema/workspace.schema';
 import mongoose, { Model, Types } from 'mongoose';
+import { RoomChatService } from '../room_chat/room_chat.service';
+import { RoomChat } from '../room_chat/schema/room_chat.schema';
+import { CreateRoomChatDto } from '../room_chat/dto/create-room_chat.dto';
 
 @Injectable()
 export class WorkspaceService {
+  constructor(
+    @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
+    private readonly roomChatService: RoomChatService,
+  ) {}
+
   getOwner(id: string) {
     return this.workSpaceModel
       .findById(id)
@@ -20,9 +28,6 @@ export class WorkspaceService {
       { new: true },
     );
   }
-  constructor(
-    @InjectModel(WorkSpace.name) private workSpaceModel: Model<WorkSpace>,
-  ) {}
 
   addBoardToWorkspace(boardId: Types.ObjectId, workspaceId: any) {
     return this.workSpaceModel.findByIdAndUpdate(
@@ -130,8 +135,18 @@ export class WorkspaceService {
     ]);
   }
 
-  create(createWorkspaceDto: CreateWorkspaceDto) {
-    return this.workSpaceModel.create(createWorkspaceDto);
+  async create(createWorkspaceDto: CreateWorkspaceDto) {
+    const result = await this.workSpaceModel.create(createWorkspaceDto);
+    if (result) {
+      const roomChat: CreateRoomChatDto = {
+        name: `Group Chat + ${result.name}`,
+        workspaceId: result._id,
+      };
+
+      await this.roomChatService.create(roomChat);
+    }
+
+    return result;
   }
 
   findAll() {

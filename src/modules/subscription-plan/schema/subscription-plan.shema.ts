@@ -5,7 +5,9 @@ import { User } from 'src/modules/user/schema/user.schema';
 
 export type SubscriptionPlanDocument = SubscriptionPlan & Document;
 
-@Schema()
+@Schema({
+  timestamps: true,
+})
 export class SubscriptionPlan {
   @Prop({
     required: true,

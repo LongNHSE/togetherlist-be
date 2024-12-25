@@ -23,7 +23,20 @@ export class PaymentController {
   @Post('/webhook')
   async handleWebhook(@Body() body: any) {
     try {
-      return await this.paymentService.handleWebHook(body);
+      console.log('Webhook received:', body);
+      if (!body.data.orderCode) {
+        return apiFailed(400, null, 'Order code is required');
+      }
+
+      return await this.paymentService.handleWebHook(body.data);
+    } catch (error) {
+      throw apiFailed(error.statusCode, null, error.message);
+    }
+  }
+  @Get('/webhook')
+  async get() {
+    try {
+      return { message: 'Webhook received successfully' };
     } catch (error) {
       throw apiFailed(error.statusCode, null, error.message);
     }

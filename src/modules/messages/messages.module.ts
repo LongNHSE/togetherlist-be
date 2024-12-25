@@ -11,5 +11,6 @@ import { Message, MessageSchema } from './schema/message.schema';
   ],
   controllers: [MessagesController],
   providers: [MessagesService],
+  exports: [MessagesService],
 })
 export class MessagesModule {}

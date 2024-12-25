@@ -22,7 +22,7 @@ export class NotificationService {
       notification.to = member.memberId;
       const result = await this.notificationModel.create(notification);
       const task = await this.getOneNotification(result._id.toString());
-      this.notificationGateway.notifyEvent(task[0]);
+      // this.notificationGateway.notifyEvent(task[0]);
     });
   }
   updateStatus(id: string, arg1: any) {
@@ -49,7 +49,7 @@ export class NotificationService {
       notification.to = member.memberId;
       const result = await this.notificationModel.create(notification);
       const task = await this.getOneNotification(result._id.toString());
-      this.notificationGateway.notifyEvent(task[0]);
+      // this.notificationGateway.notifyEvent(task[0]);
     });
   }
   createNotification(notificationDto: any) {

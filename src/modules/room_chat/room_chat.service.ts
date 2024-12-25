@@ -1,18 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoomChatDto } from './dto/create-room_chat.dto';
 import { UpdateRoomChatDto } from './dto/update-room_chat.dto';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { RoomChat } from './schema/room_chat.schema';
-import { Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
+import { apiFailed, apiSuccess } from 'src/common/api-response';
+import { MessagesService } from '../messages/messages.service';
 
 @Injectable()
 export class RoomChatService {
   constructor(
     @InjectModel(RoomChat.name) private readonly roomChatModel: Model<RoomChat>,
+    private readonly messageService: MessagesService,
+    @InjectConnection() private connection: Connection,
   ) {}
+  async findMyRoomChat(userId: any) {
+    const result = await this.roomChatModel
+      .find({
+        members: userId,
+      })
+      .populate('members');
+    return apiSuccess(HttpStatus.OK, result, 'Get my room chat successfully');
+  }
 
-  create(createRoomChatDto: CreateRoomChatDto) {
-    return this.roomChatModel.create(createRoomChatDto);
+  async getAllRoomMessage(id: string) {
+    const allRoomMessage = await this.messageService.getMessagesByRoomId(id);
+    return apiSuccess(
+      HttpStatus.OK,
+      allRoomMessage,
+      'Get all room message successfully',
+    );
+  }
+
+  async create(createRoomChatDto: CreateRoomChatDto) {
+    // Transform the members array to an array of ObjectId values
+    const transformedMembers = createRoomChatDto.members.map(
+      (member) => new Types.ObjectId(member.userId),
+    );
+
+    // Create a new object with the transformed members array
+    const transformedDto = {
+      ...createRoomChatDto,
+      members: transformedMembers,
+    };
+    const result = await this.roomChatModel.create(transformedDto);
+
+    if (result) {
+      return apiSuccess(
+        HttpStatus.CREATED,
+        result,
+        'Room chat created successfully',
+      );
+    }
+    return apiFailed(HttpStatus.BAD_REQUEST, 'Failed to create room chat');
+    // return this.roomChatModel.create(createRoomChatDto);
   }
 
   findAll() {

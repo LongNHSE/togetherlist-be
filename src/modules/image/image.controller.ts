@@ -52,8 +52,10 @@ export class ImageController {
       }
       const bucket = this.firebaseService.getFirestoreInstance().bucket();
       const file = bucket.file(imageName);
-      const fileStream = file.createReadStream();
-      console.log(fileStream);
+      const fileStream = file.createReadStream().on('error', (err) => {
+        console.log(err);
+        return apiFailed(HttpStatus.NOT_FOUND, null, err.message);
+      });
       fileStream.pipe(res);
       return null;
     } catch (error) {

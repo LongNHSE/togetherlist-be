@@ -1,3 +1,4 @@
+import { Room_chatGateway } from './modules/room_chat/room_chat.gateway';
 import { MemberGateway } from './modules/member/member.gateway';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';

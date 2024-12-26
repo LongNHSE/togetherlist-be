@@ -20,14 +20,13 @@ export class MessagesService {
     createMessageDto: CreateMessageDto,
     user: any,
   ): Promise<Message> {
-    console.log(user);
     const createdMessage = new this.messageModel({
       // ...createMessageDto,
       roomChat: createMessageDto.roomChatId,
       content: createMessageDto.content,
       sender: user.userId,
     });
-    return createdMessage.save();
+    return (await createdMessage.save()).populate('sender');
   }
 
   getMessagesByRoomId(roomId: string): Promise<Message[]> {

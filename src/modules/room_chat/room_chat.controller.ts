@@ -15,6 +15,7 @@ import { CreateRoomChatDto } from './dto/create-room_chat.dto';
 import { UpdateRoomChatDto } from './dto/update-room_chat.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/decorator';
+import { CreateMessageDto } from '../messages/dto/create-message.dto';
 
 @Controller('room-chat')
 export class RoomChatController {
@@ -45,6 +46,16 @@ export class RoomChatController {
   @UseGuards(AuthGuard('jwt'))
   getAllRoomMessage(@Param('id') id: string) {
     return this.roomChatService.getAllRoomMessage(id);
+  }
+
+  @Post(':id/messages')
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(new ValidationPipe())
+  createMessage(
+    @Body() createMessageDto: CreateMessageDto,
+    @GetUser() user: any,
+  ) {
+    return this.roomChatService.createMessage(createMessageDto, user);
   }
 
   // @Post(':id/messages')

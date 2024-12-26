@@ -6,14 +6,32 @@ import { RoomChat } from './schema/room_chat.schema';
 import { Connection, Model, Types } from 'mongoose';
 import { apiFailed, apiSuccess } from 'src/common/api-response';
 import { MessagesService } from '../messages/messages.service';
+import { Room_chatGateway } from './room_chat.gateway';
+import { CreateMessageDto } from '../messages/dto/create-message.dto';
 
 @Injectable()
 export class RoomChatService {
   constructor(
     @InjectModel(RoomChat.name) private readonly roomChatModel: Model<RoomChat>,
     private readonly messageService: MessagesService,
+    private readonly roomChatGateway: Room_chatGateway,
     @InjectConnection() private connection: Connection,
   ) {}
+  async createMessage(createMessageDto: CreateMessageDto, user: any) {
+    const result = await this.messageService.createMessage(
+      createMessageDto,
+      user,
+    );
+    if (result) {
+      this.roomChatGateway.handleSendMessage(result);
+      return apiSuccess(
+        HttpStatus.CREATED,
+        result,
+        'Message created successfully',
+      );
+    }
+    return result;
+  }
   async findMyRoomChat(userId: any) {
     const result = await this.roomChatModel
       .find({

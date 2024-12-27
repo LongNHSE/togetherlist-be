@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { GetMessagesDto } from './dto/get-messages.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Message, MessageDocument } from './schema/message.schema';
@@ -16,8 +16,26 @@ export class MessagesService {
     return this.messageModel.find({ room: getMessagesDto.roomId }).exec();
   }
 
-  async createMessage(createMessageDto: CreateMessageDto): Promise<Message> {
-    const createdMessage = new this.messageModel(createMessageDto);
-    return createdMessage.save();
+  async createMessage(
+    createMessageDto: CreateMessageDto,
+    user: any,
+  ): Promise<Message> {
+    const createdMessage = new this.messageModel({
+      // ...createMessageDto,
+      roomChat: createMessageDto.roomChatId,
+      content: createMessageDto.content,
+      sender: user.userId,
+    });
+    return (await createdMessage.save()).populate('sender');
+  }
+
+  getMessagesByRoomId(roomId: string): Promise<Message[]> {
+    return this.messageModel
+      .find({
+        roomChat: new Types.ObjectId(roomId),
+      })
+      .populate('sender')
+      .populate('task')
+      .exec();
   }
 }

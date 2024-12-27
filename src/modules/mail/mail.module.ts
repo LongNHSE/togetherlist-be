@@ -16,10 +16,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           port: 587,
           secure: false,
           ignoreTLS: false,
-          auth: {
-            user: configService.get('EMAIL_USERNAME'),
-            pass: configService.get('EMAIL_PASSWORD'),
-          },
+          // auth: {
+          //   user: configService.get('EMAIL_USERNAME'),
+          //   pass: configService.get('EMAIL_PASSWORD'),
+          // },
         },
         template: {
           dir: __dirname + '/templates',

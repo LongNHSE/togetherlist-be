@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthDTO, LoginDTO } from './dto';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -125,12 +130,19 @@ export class AuthService {
     return refreshToken;
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
+  async refreshTokens(refreshToken: string) {
+    const { userId } = await this.jwt.verifyAsync(refreshToken, {
+      secret: this.config.get('JWT_REFRESH_SECRET'),
+      algorithms: ['HS256'],
+    });
     const user = await this.userModel.findById(userId);
     if (!user || !user.refreshToken)
-      throw new ForbiddenException('Access Denied');
+      throw new UnauthorizedException('Access Denied');
     const refreshTokenMatches = refreshToken === user.refreshToken;
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches)
+      throw new ForbiddenException(
+        'Refresh token has been revoked. Please log in again.',
+      );
     const tokens = await this.signToken(user.id, user);
     return tokens;
   }

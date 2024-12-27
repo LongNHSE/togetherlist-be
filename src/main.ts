@@ -1,17 +1,40 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as morgan from 'morgan';
 import * as cookieParser from 'cookie-parser';
 import { useContainer } from 'class-validator';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
+import { AllExceptionsFilter } from './common/filter/all-exceptions.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.enableCors();
+  // const httpServer = createServer(app.getHttpAdapter().getInstance());
+  // const corsOptions = {
+  //   origin: ['http://localhost/3000'],
+  //   allowedHeaders: [
+  //     'Content-Type',
+  //     'Authorization',
+  //     'Access-Control-Allow-Methods',
+  //     'Access-Control-Request-Headers',
+  //   ],
+  //   credentials: true,
+  //   enablePreflight: true,
+  // };
+
+  app.enableCors();
 
   // set up middlewares ----------------------------
   app.use(morgan('dev'));
   app.use(cookieParser());
+  // const io = new Server(httpServer, {
+  //   cors: {
+  //     origin: '*',
+  //     methods: ['GET', 'POST'],
+  //   },
+  // });
 
   // -----------------------------------------------
   // set up global pipes to protect data from all endpoint ---------------------------
@@ -22,6 +45,9 @@ async function bootstrap() {
   // The 'fallbackOnErrors' option is set to true, which means that if a requested dependency is not found in the NestJS container,
   // these libraries will try to instantiate it themselves.
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(HttpAdapterHost)));
 
   // set up swagger --------------------------------
   const config = new DocumentBuilder()
@@ -41,7 +67,7 @@ async function bootstrap() {
   // http://localhost:8000/swagger#/
   // -----------------------------------------------
 
-  await app.listen(8000, '0.0.0.0');
+  await app.listen(8000);
 }
 
 bootstrap();

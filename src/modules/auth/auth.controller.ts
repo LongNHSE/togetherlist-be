@@ -73,20 +73,15 @@ export class AuthController {
     }
   }
 
-  @Post('refresh')
+  @Post('refresh-token')
   @UseGuards(AuthGuard('jwt-refresh'))
   async refresh(@Req() req: any) {
-    const userId = req.user['userId'];
     const refreshToken = req.user['refreshToken'];
-    const accessToken = await this.authService.refreshTokens(
-      userId,
-      refreshToken,
-    );
-    console.log(accessToken);
+    const accessToken = await this.authService.refreshTokens(refreshToken);
     return {
       statusCode: 200,
       message: 'Token refreshed successfully',
-      accessToken: accessToken,
+      data: { accessToken },
     };
   }
 
@@ -106,7 +101,6 @@ export class AuthController {
         HttpStatus.CONFLICT,
       );
     }
-    console.log(createDTO);
     const isSended = await this.mailService.sendUserOTP(createDTO.mail, otp);
     const isCreated = await this.otpService.create(createDTO);
     if (isSended && isCreated) {

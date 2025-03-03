@@ -1,11 +1,13 @@
 import { IsInt, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import { IsValidObjectId } from 'src/common/validator/IsValidObjectId.validator';
 
 export class CreateMessageDto {
-  @IsInt()
-  readonly roomId: number;
+  @IsNotEmpty()
+  @IsValidObjectId()
+  roomChatId: string;
 
   @IsNotEmpty()
   @MinLength(1)
   @MaxLength(500)
-  readonly content: string;
+  content: string;
 }

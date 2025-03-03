@@ -137,14 +137,14 @@ export class WorkspaceService {
 
   async create(createWorkspaceDto: CreateWorkspaceDto) {
     const result = await this.workSpaceModel.create(createWorkspaceDto);
-    if (result) {
-      const roomChat: CreateRoomChatDto = {
-        name: `Group Chat + ${result.name}`,
-        workspaceId: result._id,
-      };
+    // if (result) {
+    //   const roomChat: CreateRoomChatDto = {
+    //     name: `Group Chat + ${result.name}`,
+    //     workspaceId: result._id,
+    //   };
 
-      await this.roomChatService.create(roomChat);
-    }
+    //   await this.roomChatService.create(roomChat);
+    // }
 
     return result;
   }

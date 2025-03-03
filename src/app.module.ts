@@ -1,3 +1,4 @@
+import { Room_chatGateway } from './modules/room_chat/room_chat.gateway';
 import { MemberGateway } from './modules/member/member.gateway';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
@@ -34,12 +35,14 @@ import { TestModule } from './modules/test/test.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       envFilePath: '.env',
     }),
     BullModule.forRoot({
       connection: {
-        host: process.env.REDIS_HOST || 'redis',
-        port: 6379,
+        host: process.env.REDIS_HOST,
+        password: process.env.REDIS_PASSWORD,
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
       },
     }),
     MongooseModule.forRootAsync({

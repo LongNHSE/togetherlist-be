@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Res,
@@ -46,11 +47,17 @@ export class ImageController {
     @Res() res: any,
   ): Promise<any> {
     try {
+      if (!imageName || imageName === undefined) {
+        return apiFailed(HttpStatus.BAD_REQUEST, null);
+      }
       const bucket = this.firebaseService.getFirestoreInstance().bucket();
       const file = bucket.file(imageName);
-      const fileStream = file.createReadStream();
-
+      const fileStream = file.createReadStream().on('error', (err) => {
+        console.log(err);
+        return apiFailed(HttpStatus.NOT_FOUND, null, err.message);
+      });
       fileStream.pipe(res);
+      return null;
     } catch (error) {
       return apiFailed(error.statusCode, null, error.message);
     }

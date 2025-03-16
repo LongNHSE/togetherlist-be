@@ -7,7 +7,7 @@ import { useContainer } from 'class-validator';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { AllExceptionsFilter } from './common/filter/all-exceptions.filter';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -68,7 +68,9 @@ async function bootstrap() {
   // -----------------------------------------------
   const port = 10000;
   console.log(port);
-  await app.listen(port, '0.0.0.0');
+  const result = await app.listen(port, '0.0.0.0');
+
+  Logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 
 bootstrap();

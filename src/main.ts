@@ -66,7 +66,7 @@ async function bootstrap() {
   });
   // http://localhost:8000/swagger#/
   // -----------------------------------------------
-  const port = process.env.PORT || 8000;
+  const port = 10000;
   console.log(port);
   await app.listen(port, '0.0.0.0');
 }

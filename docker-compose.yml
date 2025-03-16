@@ -1,9 +1,12 @@
 services:
   backend:
-    build: ./
+    image: togetherlist-be
+    build: 
+      context: ./
+      dockerfile: Dockerfile
     container_name: together-list-be
     ports:
-      - '8000:10000'
+      - '10000:10000'
     env_file:
       - .env
   #   depends_on:
